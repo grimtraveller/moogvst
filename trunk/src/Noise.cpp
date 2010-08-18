@@ -11,8 +11,7 @@
 #include <ctime>
 
 Noise::Noise() : BasicBlock(0) {
-
-
+	setType(WHITE);
 }
 
 float generateWhiteNoise(){

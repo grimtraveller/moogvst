@@ -17,6 +17,7 @@ int main(void) {
 	 */
 	Waveforms::initializeWaves(1024, 2);
 	Oscil oscil;
+	Noise noise;
 	Number freq(440.0f);
 	Number amp(1.0f);
 	int16_t samples[44100 * 2];
@@ -40,5 +41,10 @@ int main(void) {
 		samples[i] = oscil.getNextValue() * 30000;
 	}
 	write_wave("Saw_test.wav", 44100, samples, 2.0);
+
+	for (int i = 0; i < 44100 * 2; i++) {
+		samples[i] = noise.getNextValue() * 30000;
+	}
+	write_wave("Noise_test.wav", 44100, samples, 2.0);
 	return 0;
 }

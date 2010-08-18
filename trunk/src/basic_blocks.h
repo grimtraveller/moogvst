@@ -9,25 +9,25 @@ using namespace std;
  *
  */
 class BasicBlock {
-	public:
-		BasicBlock(int numberOfInputs);
-		void setInput(int i, BasicBlock * block);
+public:
+	BasicBlock(int numberOfInputs);
+	void setInput(int i, BasicBlock * block);
 
-		/*
-		 * Esse método deve retornar a próxima saída (amostra)
-		 * do bloco.
-		 */
-		virtual float getNextValue() = 0;
-		/*
-		 * Reseta os parâmetros do bloco.
-		 */
-		virtual void resetBlock(void);
-		/*
-		 * Preenche o array output com amostras.
-		 */
-		virtual void generateSamples(float * output, int sampleNum);
-	protected:
-		vector<BasicBlock *> inputs;
+	/*
+	 * Esse método deve retornar a próxima saída (amostra)
+	 * do bloco.
+	 */
+	virtual float getNextValue() = 0;
+	/*
+	 * Reseta os parâmetros do bloco.
+	 */
+	virtual void resetBlock(void);
+	/*
+	 * Preenche o array output com amostras.
+	 */
+	virtual void generateSamples(float * output, int sampleNum);
+protected:
+	vector<BasicBlock *> inputs;
 };
 /*
  * Somador
@@ -35,11 +35,11 @@ class BasicBlock {
  * Número de entradas: Configurável através do construtor
  */
 class Adder: public BasicBlock {
-	public:
-		Adder(int numberOfInputs);
-		~Adder();
+public:
+	Adder(int numberOfInputs);
+	~Adder();
 
-		float getNextValue();
+	float getNextValue();
 };
 
 /*
@@ -48,20 +48,20 @@ class Adder: public BasicBlock {
  * Número de entradas: Configurável através do construtor
  */
 class Multiplexer: public BasicBlock {
-	public:
-		Multiplexer(int numberOfInputs, int selectedInput = 0);
-		~Multiplexer();
-		/*
-		 * Seleciona a i-ésima entrada.
-		 */
-		void setSelectedInput(int i);
-		int getSelectedInput();
-		/*
-		 * Obtém a saída do bloco selecionado
-		 */
-		float getNextValue();
-	private:
-		int selectedInput;
+public:
+	Multiplexer(int numberOfInputs, int selectedInput = 0);
+	~Multiplexer();
+	/*
+	 * Seleciona a i-ésima entrada.
+	 */
+	void setSelectedInput(int i);
+	int getSelectedInput();
+	/*
+	 * Obtém a saída do bloco selecionado
+	 */
+	float getNextValue();
+private:
+	int selectedInput;
 };
 
 /*
@@ -71,14 +71,14 @@ class Multiplexer: public BasicBlock {
  * Número de entradas: 0
  */
 class Number: public BasicBlock {
-	public:
-		Number(float number);
-		~Number();
-		float getNextValue();
-		void setNumber(float number);
-		float getNumber(void);
-	private:
-		float number;
+public:
+	Number(float number);
+	~Number();
+	float getNextValue();
+	void setNumber(float number);
+	float getNumber(void);
+private:
+	float number;
 };
 
 enum wavetypes {
@@ -88,17 +88,17 @@ enum wavetypes {
 typedef enum wavetypes wavetype_t;
 
 class Waveforms {
-	private:
-		static vector<float> * trig;
-		static vector<float> * sawtrig;
-		static vector<float> * saw;
-		static vector<float> * square;
-		static vector<float> * widerect;
-		static vector<float> * narrowrect;
-	public:
-		static void initializeWaves(int length, int extraPoints);
-		static void deleteWaves();
-		static vector<float> * getWaveform(wavetype_t wave);
+private:
+	static vector<float> * trig;
+	static vector<float> * sawtrig;
+	static vector<float> * saw;
+	static vector<float> * square;
+	static vector<float> * widerect;
+	static vector<float> * narrowrect;
+public:
+	static void initializeWaves(int length, int extraPoints);
+	static void deleteWaves();
+	static vector<float> * getWaveform(wavetype_t wave);
 };
 
 /*
@@ -109,27 +109,26 @@ class Waveforms {
  * Número de entradas: 2 (Frequência e Amplitude)
  */
 class Oscil: public BasicBlock {
-	public:
-		Oscil();
-		Oscil(wavetype_t wave);
+public:
+	Oscil();
+	Oscil(wavetype_t wave);
 
-		void setFrequencyInput(BasicBlock * block);
-		void setAmplitudeInput(BasicBlock * block);
-		void setWavetable(wavetype_t wave);
-		void setWavetable(vector<float> & table);
-		float getNextValue();
-		void reset_block(void);
-	private:
-		float cubic_interpolation(float phase)const;
-		float linear_interpolation(float phase)const;
-		vector<float>& table;
-		float increment;
-		float previous_phase;
+	void setFrequencyInput(BasicBlock * block);
+	void setAmplitudeInput(BasicBlock * block);
+	void setWavetable(wavetype_t wave);
+	void setWavetable(vector<float> & table);
+	float getNextValue();
+	void reset_block(void);
+private:
+	float cubic_interpolation(float phase) const;
+	float linear_interpolation(float phase) const;
+	vector<float>& table;
+	float increment;
+	float previous_phase;
 };
 
 enum noisetype {
-	WHITE,
-	PINK
+	WHITE, PINK
 };
 typedef enum noisetype noisetype_t;
 
@@ -139,14 +138,74 @@ typedef enum noisetype noisetype_t;
  * Número de entradas: 0
  */
 class Noise: public BasicBlock {
-	public:
-		Noise();
-		void setType(noisetype_t type);
-		noisetype_t getType();
-		float getNextValue();
-	private:
-		noisetype_t noise_type;
-		float (*noiseGenerator)();
+public:
+	Noise();
+	void setType(noisetype_t type);
+	noisetype_t getType();
+	float getNextValue();
+private:
+	noisetype_t noise_type;
+	float (*noiseGenerator)();
+};
+
+class ADSR: public BasicBlock {
+public:
+	ADSR();
+	ADSR(float attack, float decay, float sustain, float release);
+	void resetBlock();
+	float getNextValue();
+
+
+	void setAttack(float attack);
+	float getAttack();
+	void setDecay(float decay);
+	float getDecay();
+	void setSustain(float sustain);
+	float getSustain();
+	void setRelease(float release);
+	float getRelease();
+
+	void setSustain_amp(float sustain_amp);
+	void setRelease_sharpness(float release_sharpness);
+	void setDecay_sharpness(float decay_sharpness);
+	void setAttack_sharpness(float attack_sharpness);
+	void setReleaseON(bool on);
+
+	float getSustain_amp() const;
+	float getRelease_sharpness() const;
+	float getDecay_sharpness() const;
+	float getAttack_sharpness() const;
+	bool getReleaseON() const;
+private:
+	enum phasetype {
+		ATTACK, DECAY, SUSTAIN, RELEASE
+	};
+	typedef enum phasetype phase_t;
+	/*
+	 * Indica em qual fase a envoltória está atualmente
+	 */
+	phase_t current_phase;
+	/*
+	 * O número de amostras que já foram emitidas da fase atual
+	 *
+	 */
+	int current_phase_samples;
+	float attack;
+	float decay;
+	float sustain;
+	float release;
+	float attack_sharpness;
+	float decay_sharpness;
+	float sustain_amp;
+	float release_sharpness;
+	/*
+	 * Indica se o release está ativo.
+	 */
+	bool releaseON;
+
+	float attack_function();
+	float decay_function();
+	float release_function();
 };
 
 /*
@@ -155,16 +214,16 @@ class Noise: public BasicBlock {
  * Numero de entradas: 2, o sinal a ser filtrado e a frequencia de corte
  * pra construir precisa do fator de qualidade, mas pode ser mudado depois.
  */
-class Filter: public BasicBlock{
-	public:
-		Filter(float quality);
-		void setInputSignal(BasicBlock * block);
-		void setFrequencyInput(BasicBlock * block);
-		void setQuality(float quality);
-		float getNextValue();
-	private:
-		float CutOffFrequency;
-		float Quality;
-		float previousOutput;
+class Filter: public BasicBlock {
+public:
+	Filter(float quality);
+	void setInputSignal(BasicBlock * block);
+	void setFrequencyInput(BasicBlock * block);
+	void setQuality(float quality);
+	float getNextValue();
+private:
+	float CutOffFrequency;
+	float Quality;
+	float previousOutput;
 };
 #endif 
