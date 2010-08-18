@@ -1,6 +1,6 @@
 #include "basic_blocks.h"
 #include "globals.h"
-#include "math.h"
+#include <cmath>
 
 Filter::Filter(float quality) : 
 	BasicBlock(2), previousOutput(0.0), Quality(quality) {
