@@ -60,7 +60,7 @@ float Oscil::getNextValue() {
 	phase += aux;
 	previous_phase = phase;
 
-	return cubic_interpolation(phase)*amp;
+	return linear_interpolation(phase)*amp;
 }
 
 float Oscil::cubic_interpolation(float phase)const{
@@ -90,6 +90,21 @@ float Oscil::cubic_interpolation(float phase)const{
 	y = -frac*(frac-1)*(frac-2)*y0/6.0 + (frac+1)*(frac-1)*(frac-2)*y1/2.0;
 	y += -(frac+1)*(frac)*(frac-2)*y2/2.0 + (frac+1)*(frac)*(frac-1)*y3/6.0;
 
+
+	return y;
+}
+
+float Oscil::linear_interpolation(float phase)const{
+	int x1,x2;
+	float y1,y2,y;
+
+	x1 = (int) phase;
+	x2 = (int) phase + 1;
+
+	y1 = table[x1];
+	y2 = table[x2];
+
+	y = y1 + (phase - x1)*(y2-y1);
 
 	return y;
 }
