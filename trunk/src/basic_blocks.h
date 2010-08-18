@@ -112,7 +112,6 @@ class Oscil: public BasicBlock {
 	public:
 		Oscil();
 		Oscil(wavetype_t wave);
-		virtual ~Oscil();
 
 		void setFrequencyInput(BasicBlock * block);
 		void setAmplitudeInput(BasicBlock * block);
@@ -122,6 +121,7 @@ class Oscil: public BasicBlock {
 		void reset_block(void);
 	private:
 		float cubic_interpolation(float phase)const;
+		float linear_interpolation(float phase)const;
 		vector<float>& table;
 		float increment;
 		float previous_phase;
@@ -142,30 +142,10 @@ class Noise: public BasicBlock {
 	public:
 		Noise();
 		void setType(noisetype_t type);
+		noisetype_t getType();
 		float getNextValue();
 	private:
-		float generateWhiteNoise();
-		float generatePinkNoise();
-		float (*noiseGenerator)(void);
-};
-
-/*
- * Filtro do Moog, com frequencia controlada e fator de qualidade.
- * 
- * Numero de entradas: 2, o sinal a ser filtrado e a frequencia de corte
- * pra construir precisa do fator de qualidade, mas pode ser mudado depois.
- */
-class Filter: public BasicBlock{
-	public:
-		Filter(float quality);
-		void setInputSignal(BasicBlock * block);
-		void setFrequencyInput(BasicBlock * block);
-		void setQuality(float quality);
-		float getNextValue();
-	private: 
-		float CutOffFrequency;
-		float Quality;
-		float previousOutput;
-		
+		noisetype_t noise_type;
+		float (*noiseGenerator)();
 };
 #endif 

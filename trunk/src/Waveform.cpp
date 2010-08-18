@@ -5,6 +5,14 @@
  *      Author: Bruno Figueira "Jedi" Lourenço
  */
 #include "basic_blocks.h"
+#include <cmath>
+
+vector<float> * Waveforms::trig = NULL;
+vector<float> * Waveforms::saw = NULL;
+vector<float> * Waveforms::sawtrig = NULL;
+vector<float> * Waveforms::square = NULL;
+vector<float> * Waveforms::widerect = NULL;
+vector<float> * Waveforms::narrowrect = NULL;
 
 vector<float> * Waveforms::getWaveform(wavetype_t wave) {
 	switch (wave) {
@@ -25,17 +33,42 @@ vector<float> * Waveforms::getWaveform(wavetype_t wave) {
 	}
 }
 
+static float triangular_wave(float x) {
+	float aux;
+	aux = fmod(x, 1.0f);
+	if (aux < 0.5){
+		return 2.0*aux;
+	}
+	return -2.0*aux + 2;
+}
+
+static float square_wave(float x){
+	float aux;
+	aux = fmod(x, 1.0f);
+	if (aux < 0.5)
+		return 1.0;
+	return -1.0;
+}
+
+static float sawtooth_wave(float x){
+	return x - floor(x);
+}
+
 void Waveforms::initializeWaves(int length, int extraPoints) {
 	int i;
-	trig = new vector<float> (length);
-	sawtrig = new vector<float> (length);
-	saw = new vector<float> (length);
-	square = new vector<float> (length);
-	widerect = new vector<float> (length);
-	narrowrect = new vector<float> (length);
+	float aux;
+	trig = new vector<float> (length + extraPoints);
+	sawtrig = new vector<float> (length + extraPoints);
+	saw = new vector<float> (length + extraPoints);
+	square = new vector<float> (length + extraPoints);
+	widerect = new vector<float> (length + extraPoints);
+	narrowrect = new vector<float> (length + extraPoints);
 
 	for (i = 0; i < length + extraPoints; i++) {
-
+		aux =((float)i)/length;
+		(*trig)[i] = triangular_wave(aux);
+		(*square)[i] = square_wave(aux);
+		(*saw)[i] = sawtooth_wave(aux);
 	}
 }
 
