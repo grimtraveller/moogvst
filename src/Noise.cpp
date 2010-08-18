@@ -37,3 +37,7 @@ void Noise::setType(noisetype_t type){
 noisetype_t Noise::getType() {
 	return this->noise_type;
 }
+
+float Noise::getNextValue(){
+	return this->noiseGenerator();
+}

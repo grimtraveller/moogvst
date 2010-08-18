@@ -5,6 +5,3 @@
  *      Author: Bruno Figueira "Jedi" Lourenço
  */
 
-int main(void){
-
-}
