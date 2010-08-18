@@ -157,13 +157,13 @@ public:
 
 
 	void setAttack(float attack);
-	float getAttack();
+	float getAttack() const;
 	void setDecay(float decay);
-	float getDecay();
+	float getDecay() const;
 	void setSustain(float sustain);
-	float getSustain();
+	float getSustain() const;
 	void setRelease(float release);
-	float getRelease();
+	float getRelease() const;
 
 	void setSustain_amp(float sustain_amp);
 	void setRelease_sharpness(float release_sharpness);

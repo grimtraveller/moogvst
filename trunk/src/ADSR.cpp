@@ -12,8 +12,8 @@
 
 ADSR::ADSR() :
 	BasicBlock(0), current_phase(ATTACK), current_phase_samples(0),
-			attack(0.8), decay(0.2), sustain(0.8), release(0.2),
-			attack_sharpness(0.5), decay_sharpness(0.5), sustain_amp(0.9),
+			attack(0.2), decay(0.1), sustain(0.2), release(1.2),
+			attack_sharpness(1000), decay_sharpness(0.5), sustain_amp(0.9),
 			release_sharpness(0.5), releaseON(false) {
 
 }
@@ -21,7 +21,7 @@ ADSR::ADSR() :
 ADSR::ADSR(float attack, float decay, float sustain, float release) :
 	BasicBlock(0), current_phase(ATTACK), current_phase_samples(0), attack(
 			attack), decay(decay), sustain(sustain), release(release),
-			attack_sharpness(0.5), decay_sharpness(0.5), sustain_amp(0.9),
+			attack_sharpness(1000), decay_sharpness(0.5), sustain_amp(0.9),
 			release_sharpness(0.5), releaseON(false) {
 
 }
@@ -67,7 +67,7 @@ float ADSR::getNextValue() {
 		}
 		break;
 	case RELEASE:
-		out = decay_function();
+		out = release_function();
 		break;
 	}
 
@@ -92,6 +92,39 @@ float ADSR::getSustain_amp() const {
 
 bool ADSR::getReleaseON() const {
 	return releaseON;
+}
+
+float ADSR::getAttack() const {
+	return this->attack;
+}
+
+float ADSR::getDecay() const {
+	return this->decay;
+}
+
+float ADSR::getSustain () const {
+	return this->sustain;
+}
+
+
+float ADSR::getRelease() const {
+	return this->release;
+}
+
+void ADSR::setAttack(float attack) {
+	this->attack = attack;
+}
+
+void ADSR::setDecay(float decay) {
+	this->decay = decay;
+}
+
+void ADSR::setSustain(float sustain) {
+	this->sustain = sustain;
+}
+
+void ADSR::setRelease(float release) {
+	this->release = release;
 }
 
 void ADSR::setAttack_sharpness(float attack_sharpness) {
