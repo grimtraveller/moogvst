@@ -148,4 +148,23 @@ class Noise: public BasicBlock {
 		noisetype_t noise_type;
 		float (*noiseGenerator)();
 };
+
+/*
+ * Filtro do Moog, com frequencia controlada e fator de qualidade.
+ *
+ * Numero de entradas: 2, o sinal a ser filtrado e a frequencia de corte
+ * pra construir precisa do fator de qualidade, mas pode ser mudado depois.
+ */
+class Filter: public BasicBlock{
+	public:
+		Filter(float quality);
+		void setInputSignal(BasicBlock * block);
+		void setFrequencyInput(BasicBlock * block);
+		void setQuality(float quality);
+		float getNextValue();
+	private:
+		float CutOffFrequency;
+		float Quality;
+		float previousOutput;
+};
 #endif 
