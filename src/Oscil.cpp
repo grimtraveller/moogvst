@@ -21,7 +21,7 @@ Oscil::Oscil(wavetype_t wave) :
 }
 
 void Oscil::setWavetable(wavetype_t wave) {
-	table = *(Waveforms::getWaveform(wave));
+	this->table = *(Waveforms::getWaveform(wave));
 }
 
 void Oscil::setWavetable(vector<float> & table) {

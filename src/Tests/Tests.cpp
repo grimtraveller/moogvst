@@ -20,6 +20,7 @@ int main(void) {
 	Noise noise;
 	Number freq(440.0f);
 	Number amp(1.0f);
+	ADSR adsr;
 	int16_t samples[44100 * 2];
 
 	oscil.setFrequencyInput(&freq);
@@ -46,5 +47,18 @@ int main(void) {
 		samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Noise_test.wav", 44100, samples, 2.0);
+
+	oscil.setAmplitudeInput(&adsr);
+	oscil.setWavetable(TRIG);
+	adsr.setAttack_sharpness(10000);
+	adsr.setAttack(0.2);
+	adsr.setDecay(0.1);
+	adsr.setSustain(0.2);
+	adsr.setRelease(1.0);
+	adsr.setReleaseON(true);
+	for (int i = 0; i < 44100 * 2; i++) {
+		samples[i] = oscil.getNextValue() * 30000;
+	}
+	write_wave("ADSR_test.wav", 44100, samples, 2.0);
 	return 0;
 }
