@@ -211,19 +211,20 @@ private:
 /*
  * Filtro do Moog, com frequencia controlada e fator de qualidade.
  *
- * Numero de entradas: 2, o sinal a ser filtrado e a frequencia de corte
- * pra construir precisa do fator de qualidade, mas pode ser mudado depois.
+ * Numero de entradas: 3, o sinal a ser filtrado e a frequencia de corte e o fator de qualidade k
+ * 
  */
-class Filter: public BasicBlock {
-public:
-	Filter(float quality);
-	void setInputSignal(BasicBlock * block);
-	void setFrequencyInput(BasicBlock * block);
-	void setQuality(float quality);
-	float getNextValue();
-private:
-	float CutOffFrequency;
-	float Quality;
-	float previousOutput;
+class Filter: public BasicBlock{
+	public:
+		Filter();
+		virtual ~Filter();
+		void setInputSignal(BasicBlock * block);
+		void setFrequencyInput(BasicBlock * block);
+		void setQualityInput(BasicBlock * block);
+		float getNextValue();
+	private:
+		float x_1[4];
+		float y_1[4];
+			
 };
 #endif 
