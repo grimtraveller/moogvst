@@ -4,11 +4,11 @@
  *  Created on: 17/08/2010
  *      Author: Bruno Figueira "Jedi" Lourenço
  */
-
 #include "../basic_blocks.h"
 #include "wav.h"
-#include <stdint.h>
 
+#include <stdint.h>
+#include <stdio.h>
 int main(void) {
 	/*
 	 *
@@ -22,6 +22,7 @@ int main(void) {
 	Number amp(1.0f);
 	ADSR adsr;
 	int16_t samples[44100 * 2];
+	Filter filtro;
 
 	oscil.setFrequencyInput(&freq);
 	oscil.setAmplitudeInput(&amp);
@@ -47,6 +48,12 @@ int main(void) {
 		samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Noise_test.wav", 44100, samples, 2.0);
+	
+	noise.setType(PINK);
+	for (int i = 0; i < 44100 * 2; i++) {
+	samples[i] = noise.getNextValue() * 30000;
+	}
+	write_wave("Pink_noise.wav", 44100, samples, 2.0);
 
 	oscil.setAmplitudeInput(&adsr);
 	oscil.setWavetable(TRIG);

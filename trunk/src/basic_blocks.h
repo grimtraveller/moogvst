@@ -143,9 +143,11 @@ public:
 	void setType(noisetype_t type);
 	noisetype_t getType();
 	float getNextValue();
+	float generatePinkNoise();
 private:
 	noisetype_t noise_type;
 	float (*noiseGenerator)();
+	float contrib[5];
 };
 
 class ADSR: public BasicBlock {
