@@ -1,7 +1,7 @@
 #include "basic_blocks.h"
 
 BasicBlock::BasicBlock(int numberOfInputs) :
-	inputs(numberOfInputs) {
+	inputs(numberOfInputs), ON(true) {
 }
 
 void BasicBlock::setInput(int i, BasicBlock * block) {
@@ -16,4 +16,12 @@ void BasicBlock::generateSamples(float * output, int sampleNum) {
 
 void BasicBlock::resetBlock() {
 
+}
+
+void BasicBlock::setON(bool ON) {
+	this->ON = ON;
+}
+
+bool BasicBlock::getON() {
+	return this->ON;
 }

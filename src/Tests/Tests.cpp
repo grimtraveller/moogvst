@@ -48,6 +48,8 @@ int main(void) {
 	}
 	write_wave("Saw_test.wav", 44100, samples, 2.0);
 
+	noise.setAmplitudeInput(&amp);
+
 	for (int i = 0; i < 44100 * 2; i++) {
 		samples[i] = noise.getNextValue() * 30000;
 	}
@@ -68,7 +70,7 @@ int main(void) {
 	write_wave("Pink_Noise_test.wav", 44100, samples, 2.0);
 
 	oscil.setAmplitudeInput(&adsr);
-	oscil.setWavetable(TRIG);
+	oscil.setWavetable(SQUARE);
 	adsr.setAttack_sharpness(10000);
 	adsr.setAttack(0.2);
 	adsr.setDecay(0.1);
