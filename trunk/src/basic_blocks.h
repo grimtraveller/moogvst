@@ -26,8 +26,13 @@ public:
 	 * Preenche o array output com amostras.
 	 */
 	virtual void generateSamples(float * output, int sampleNum);
+
+	virtual void setON(bool ON);
+
+	virtual bool getON();
 protected:
 	vector<BasicBlock *> inputs;
+	bool ON;
 };
 /*
  * Somador
@@ -39,6 +44,12 @@ public:
 	Adder(int numberOfInputs);
 	~Adder();
 
+	float getNextValue();
+};
+
+class Multiplier: public BasicBlock {
+public:
+	Multiplier(int numberOfInputs);
 	float getNextValue();
 };
 
@@ -116,15 +127,16 @@ public:
 	void setFrequencyInput(BasicBlock * block);
 	void setAmplitudeInput(BasicBlock * block);
 	void setWavetable(wavetype_t wave);
-	void setWavetable(vector<float> & table);
+	wavetype_t getWavetype();
 	float getNextValue();
 	void reset_block(void);
 private:
 	float cubic_interpolation(float phase) const;
 	float linear_interpolation(float phase) const;
-	vector<float>& table;
+	vector<float> * table;
 	float increment;
 	float previous_phase;
+	wavetype_t wave;
 };
 
 enum noisetype {
@@ -143,8 +155,9 @@ public:
 	void setType(noisetype_t type);
 	noisetype_t getType();
 	float getNextValue();
-	float generatePinkNoise();
+	void setAmplitudeInput(BasicBlock * block);
 private:
+	float generatePinkNoise();
 	noisetype_t noise_type;
 	float (*noiseGenerator)();
 	float contrib[5];

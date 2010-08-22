@@ -28,6 +28,7 @@ ADSR::ADSR(float attack, float decay, float sustain, float release) :
 
 void ADSR::resetBlock() {
 	current_phase = ATTACK;
+	current_phase_samples = 0;
 }
 
 float ADSR::attack_function() {
@@ -42,6 +43,10 @@ float ADSR::release_function() {
 	return sustain_amp*exp(current_phase_samples*(log(0.01) - log(sustain_amp))/(release*sample_rate));
 }
 float ADSR::getNextValue() {
+	if (!this->ON){
+		return 1.0;
+	}
+
 	float out;
 	current_phase_samples++;
 	switch (current_phase) {

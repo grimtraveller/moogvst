@@ -9,23 +9,24 @@
 #include "globals.h"
 
 Oscil::Oscil() :
-	BasicBlock(2), table(*(Waveforms::getWaveform(TRIG))), increment(0.0),
+	BasicBlock(2), table(Waveforms::getWaveform(TRIG)), increment(0.0),
 			previous_phase(0.0) {
 
 }
 
 Oscil::Oscil(wavetype_t wave) :
-	BasicBlock(2), table(*(Waveforms::getWaveform(wave))), increment(0.0),
+	BasicBlock(2), table(Waveforms::getWaveform(wave)), increment(0.0),
 			previous_phase(0.0) {
 
 }
 
 void Oscil::setWavetable(wavetype_t wave) {
-	this->table = *(Waveforms::getWaveform(wave));
+	this->wave = wave;
+	this->table = Waveforms::getWaveform(wave);
 }
 
-void Oscil::setWavetable(vector<float> & table) {
-	this->table = table;
+wavetype_t Oscil::getWavetype(){
+	return this->wave;
 }
 
 void Oscil::setFrequencyInput(BasicBlock * block) {
@@ -37,6 +38,8 @@ void Oscil::setAmplitudeInput(BasicBlock * block) {
 }
 
 float Oscil::getNextValue() {
+	if (!this->ON)
+		return 0.0;
 	float phase;
 	float aux;
 	float freq;
@@ -46,7 +49,7 @@ float Oscil::getNextValue() {
 	freq = inputs[0]->getNextValue();
 	amp = inputs[1]->getNextValue();
 	/*Assume que a tabela tem dois pontos extras no final*/
-	table_length = table.size() - 2;
+	table_length = (*table).size() - 2;
 	increment = (float) table_length * freq / sample_rate;
 	phase = previous_phase + increment;
 	/*Pega a parte fracionária da fase*/
@@ -74,16 +77,16 @@ float Oscil::cubic_interpolation(float phase)const{
 	x3 = x1 + 2;
 	frac = phase - x1;
 
-	y1 = table[x1];
-	y2 = table[x2];
-	y3 = table[x3];
+	y1 = (*table)[x1];
+	y2 = (*table)[x2];
+	y3 = (*table)[x3];
 
 	if (x1 <= 0 ){
-		int table_length = table.size() - 2;
-		y0 = table[table_length - 1];
+		int table_length = (*table).size() - 2;
+		y0 = (*table)[table_length - 1];
 	}
 	else{
-		y0 = table[x1 - 1];
+		y0 = (*table)[x1 - 1];
 	}
 
 	/*Apenas divide a fórmula em duas partes para facilitar a leitura*/
@@ -101,8 +104,8 @@ float Oscil::linear_interpolation(float phase)const{
 	x1 = (int) phase;
 	x2 = (int) phase + 1;
 
-	y1 = table[x1];
-	y2 = table[x2];
+	y1 = (*table)[x1];
+	y2 = (*table)[x2];
 
 	y = y1 + (phase - x1)*(y2-y1);
 
