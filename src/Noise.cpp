@@ -9,9 +9,15 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <stdio.h>
 
 Noise::Noise() : BasicBlock(0) {
 	setType(WHITE);
+		contrib[0]=0.0f;
+		contrib[1]=0.0f;
+		contrib[2]=0.0f;
+		contrib[3]=0.0f;
+		contrib[4]=0.0f;
 }
 
 float generateWhiteNoise(){
@@ -28,19 +34,24 @@ float generateWhiteNoise(){
  * referencia:  http://home.earthlink.net/~ltrammell/tech/newpink.htm
  * 
  * */
-float generatePinkNoise(){
-	
+float Noise::generatePinkNoise(){
+
 		float pA[] =   {  3.8024,    2.9694,    2.5970,    3.0870,    3.4006};
 		float pP[] =   {  0.00198,   0.01280,   0.04900,   0.17000,   0.68200 };
 		float pSUM[] = {  0.00198,   0.01478,   0.06378,   0.23378,   0.91578};
-		float acc=0;
 		float ur2;
-   float ur1 = rand()/RAND_MAX;
-   for (int i;i<5 && ur1<=pSUM[i];i++){
-         ur2 = rand()/RAND_MAX;
-         acc+=2*(ur2-0.5)*pA[i];
+		float acc=0;
+		
+   float ur1 = rand()*1.0f/RAND_MAX;
+   for (int i=0;i<5 ;i++){
+	     if (ur1<=pSUM[i]){
+			 ur2 = rand()*1.0f/RAND_MAX;
+			 this->contrib[i]+=2*(ur2-0.5)*pA[i];
+			 break;
+         }
 	}
-	return acc;
+	for (int i=0;i<5 ;i++) acc+=this->contrib[i];
+	return acc/400.0f;
 }
 
 void Noise::setType(noisetype_t type){
@@ -51,7 +62,9 @@ void Noise::setType(noisetype_t type){
 		srand(time(NULL));
 	}
 	else {
-		this->noiseGenerator = generatePinkNoise;
+		
+		srand(time(NULL));
+	
 	}
 }
 
@@ -60,5 +73,9 @@ noisetype_t Noise::getType() {
 }
 
 float Noise::getNextValue(){
+	if (this->noise_type == WHITE)
 	return this->noiseGenerator();
+	else
+	return this->generatePinkNoise();
+	
 }
