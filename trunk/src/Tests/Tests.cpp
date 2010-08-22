@@ -21,6 +21,7 @@ int main(void) {
 	Number freq(440.0f);
 	Number amp(1.0f);
 	ADSR adsr;
+	Filter filter;
 	int16_t samples[44100 * 2];
 	Filter filtro;
 
@@ -54,6 +55,12 @@ int main(void) {
 	samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Pink_noise.wav", 44100, samples, 2.0);
+
+	noise.setType(PINK);
+	for (int i = 0; i < 44100 * 2; i++) {
+			samples[i] = noise.getNextValue() * 30000;
+	}
+	write_wave("Pink_Noise_test.wav", 44100, samples, 2.0);
 
 	oscil.setAmplitudeInput(&adsr);
 	oscil.setWavetable(TRIG);
