@@ -44,11 +44,11 @@ float Filter::getNextValue() {
 	freq = inputs[1]->getNextValue();
 	k = inputs[2]->getNextValue();
 
-	omegaTilC = 2 * sample_rate * tan(freq * 2 * 3.1415926 / (sample_rate * 2));
+	omegaTilC = 2 * sample_rate * tan(freq * 2 * 3.1415926536 / (sample_rate * 2));
 	b0 = (omegaTilC / sample_rate) / (omegaTilC / sample_rate + 2);
 	a1 = (omegaTilC / sample_rate - 2) / (omegaTilC / sample_rate + 2);
 
-	input = input + k * y_1[3];
+	input = input - k * y_1[3];
 	temp[0] = b0 * (input + x_1[0]) - a1 * y_1[0];
 	x_1[0] = input;
 	y_1[0] = temp[0];
