@@ -14,11 +14,20 @@ class Moog {
 public:
 	Moog();
 
+	/*
+	 *
+	 * Controles gerais
+	 *
+	 */
 	void setInputFreq(float freq);
 	float getInputFreq();
 	void setMasterAmp(float amp);
 	float getMasterAmp();
+	float getNextValue();
 
+	/*
+	 * Controles do Oscil1
+	 */
 	void setOscil1Amp(float amp);
 	float getOscil1Amp();
 	void setOscil1Waveform(wavetype_t type);
@@ -27,7 +36,12 @@ public:
 	int getOscil1Range();
 	void setOscil1Frequency(float freq);
 	float getOscil1Frequency();
+	void setOscil1ON(bool ON);
+	bool getOscil1ON();
 
+	/*
+	 * Controles do Oscil2
+	 */
 	void setOscil2Amp(float amp);
 	float getOscil2Amp();
 	void setOscil2Waveform(wavetype_t type);
@@ -36,6 +50,18 @@ public:
 	int getOscil2Range();
 	void setOscil2Frequency(float freq);
 	float getOscil2Frequency();
+	void setOscil2ON(bool ON);
+	bool getOscil2ON();
+
+	/*
+	 * Controles do Ruído
+	 */
+	void setNoiseAmp(float amp);
+	float getNoiseAmp();
+	void setNoiseType(noisetype_t type);
+	noisetype_t getNoiseType();
+	void setNoiseON(bool ON);
+	bool getNoiseON();
 private:
 	/*
 	 * Os blocos que compõem o sintetizador

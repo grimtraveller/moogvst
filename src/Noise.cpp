@@ -25,7 +25,7 @@ float generateWhiteNoise() {
 	return (2.0f * rand() / RAND_MAX) - 1.0f;
 }
 
-void Noise::setAmplitudeInput(BasicBlock * block){
+void Noise::setAmplitudeInput(BasicBlock * block) {
 	(this->inputs)[0] = block;
 }
 /*
@@ -81,8 +81,8 @@ float Noise::getNextValue() {
 		return 0.0;
 	float amp = inputs[0]->getNextValue();
 	if (this->noise_type == WHITE)
-		return amp*this->noiseGenerator();
+		return amp * this->noiseGenerator();
 	else
-		return amp*this->generatePinkNoise();
+		return amp * this->generatePinkNoise();
 
 }
