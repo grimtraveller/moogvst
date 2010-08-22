@@ -51,7 +51,7 @@ float Noise::generatePinkNoise(){
          }
 	}
 	for (int i=0;i<5 ;i++) acc+=this->contrib[i];
-	return acc/400.0f;
+	return acc/500.0f;
 }
 
 void Noise::setType(noisetype_t type){
