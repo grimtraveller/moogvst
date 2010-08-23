@@ -13,7 +13,6 @@
 class Moog {
 public:
 	Moog();
-
 	/*
 	 *
 	 * Controles gerais
@@ -39,6 +38,9 @@ public:
 	void setOscil1ON(bool ON);
 	bool getOscil1ON();
 
+	void setSyncON(bool ON);
+	bool getSyncON();
+
 	/*
 	 * Controles do Oscil2
 	 */
@@ -62,6 +64,37 @@ public:
 	noisetype_t getNoiseType();
 	void setNoiseON(bool ON);
 	bool getNoiseON();
+
+	/*
+	 * Controles do filtro
+	 */
+	void setFilterCutoffFreq(float freq);
+	float getfilterCutoffFreq();
+	void setContourAmount(float amount);
+	float getContourAmount();
+	void setFilterQuality(float q);
+	float getFilterQuality();
+	void setFilterAttack(float attack);
+	float getFilterAttack();
+	void setFilterDecay(float decay);
+	float getFilterDecay();
+	void setFilterSustain(float sustain);
+	float getFilterSustain();
+	void setFilterON(bool ON);
+	bool getFilterON();
+
+	/*
+	 * Controles da envoltória
+	 */
+	void setAttack(float attack);
+	float getAttack();
+	void setDecay(float decay);
+	float getDecay();
+	void setSustain(float sustain);
+	float getSustain();
+	void setEnvON(bool ON);
+	bool getEnvON();
+
 private:
 	/*
 	 * Os blocos que compõem o sintetizador
@@ -79,11 +112,15 @@ private:
 	Adder adder;
 
 	Filter filter;
-
+	Number contour_amount;
+	Number cutoff_freq;
+	Number filter_quality;
+	Adder adder_aux;
+	Multiplier mult_aux;
 	ADSR filter_env;
 	ADSR env;
 
-	Multiplier mult_aux;
+	Multiplier mult_aux2;
 	Number master_amp;
 
 	/*
