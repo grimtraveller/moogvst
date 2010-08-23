@@ -303,11 +303,11 @@ bool Moog::getEnvON() {
  * Aux
  */
 void Moog::updateOscil1() {
-	oscil1_freq.setNumber(input_freq * ((float) oscil1_range / 8.0) * pow(2.0,
+	oscil1_freq.setNumber(input_freq * ((float) oscil1_range / 8.0) * pow(2.0f,
 			oscil1FreqOffset / 12));
 }
 
 void Moog::updateOscil2() {
-	oscil2_freq.setNumber(input_freq * ((float) oscil2_range / 8.0) * pow(2.0,
+	oscil2_freq.setNumber(input_freq * ((float) oscil2_range / 8.0) * pow(2.0f,
 			oscil2FreqOffset / 12));
 }
