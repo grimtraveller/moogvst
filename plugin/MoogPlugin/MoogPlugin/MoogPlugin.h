@@ -1,7 +1,15 @@
 #include "audioeffectx.h"
 #include "Moog.h"
 
-#define NUM_PARAMS 0
+#define NUM_PARAMS 1
+enum {
+// Parameters Tags
+	oscil1Waveform = 0,
+	oscil1Amp,
+	oscil1Range,
+	oscil1Freq,
+	oscil1ON
+};
 
 class MoogPlugin : public AudioEffectX {
 public:
@@ -18,4 +26,14 @@ private:
 	void noteOn (VstInt32 note, VstInt32 velocity, VstInt32 delta);
 	void noteOff ();
 	Moog * moog;
+
+	/*
+	 * Parâmetros
+	 *
+	 */
+	virtual void setParameter (VstInt32 index, float value);
+	virtual float getParameter (VstInt32 index);
+	virtual void getParameterLabel (VstInt32 index, char* label);
+	virtual void getParameterDisplay (VstInt32 index, char* text);
+	virtual void getParameterName (VstInt32 index, char* text);
 };
