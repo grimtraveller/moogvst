@@ -93,7 +93,7 @@ private:
 };
 
 enum wavetypes {
-	TRIG, SAWTRIG, SAW, SQUARE, WIDERECT, NARROWRECT,
+	TRIG = 0, SAWTRIG, SAW, SQUARE, WIDERECT, NARROWRECT,
 };
 
 typedef enum wavetypes wavetype_t;

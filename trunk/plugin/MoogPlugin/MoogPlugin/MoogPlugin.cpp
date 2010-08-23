@@ -1,5 +1,49 @@
 #include "MoogPlugin.h"
 
+/*
+ * 
+ * Funções auxiliares
+ *
+ */
+static wavetype_t float2wavetype(float value) {
+	if (value <= 0.16) {
+		return TRIG;
+	}
+	else if (value <= 0.32) {
+		return SAWTRIG;
+	}
+	else if (value <= 0.48) {
+		return SAW;
+	}
+	else if (value <= 0.64) {
+		return SQUARE;
+	}
+	else if (value <= 0.80) {
+		return WIDERECT;
+	}
+	return NARROWRECT;
+}
+
+static float wavetype2float(wavetype_t type) {
+	switch (type) {
+	case TRIG:
+		return 0.0;
+	case SAWTRIG:
+		return 0.32;
+	case SAW:
+		return 0.48;
+	case SQUARE:
+		return 0.64;
+	case WIDERECT:
+		return 0.80;
+	case NARROWRECT:
+		return 1.00;
+	}
+}
+
+static char *wavetypeStrings[] = {"Trig","SawTrig","Saw","Square","WRect","Narrow"};
+
+
 AudioEffect* createEffectInstance(audioMasterCallback audioMaster) {
 	return new MoogPlugin(audioMaster);
 }
@@ -23,10 +67,13 @@ MoogPlugin::MoogPlugin(audioMasterCallback audioMaster) : AudioEffectX(audioMast
 		a *= k;
 	}
 	Waveforms::initializeWaves(1024,2);
+	noteIsOn = false;
+	currentDelta = currentNote = currentVelocity = 0;
 	moog = new Moog();
 	moog->setNoiseON(false);
-	moog->setFilterON(true);
-	moog->setMasterAmp(0.5f);
+	moog->setFilterON(false);
+	moog->setMasterAmp(1.0f);
+	moog->setOscil2ON(false);
 }
 
 MoogPlugin::~MoogPlugin() {
@@ -103,3 +150,46 @@ void MoogPlugin::noteOn (VstInt32 note, VstInt32 velocity, VstInt32 delta) {
 void MoogPlugin::noteOff () {
 	noteIsOn = false;
 }
+
+/*
+ * Parâmetros
+ */
+
+void MoogPlugin::setParameter(VstInt32 index, float value){
+	switch (index) {
+	case oscil1Waveform:
+		moog->setOscil1Waveform(float2wavetype(value));
+	}
+}
+
+float MoogPlugin::getParameter(VstInt32 index) {
+	switch (index) {
+	case oscil1Waveform:
+		return wavetype2float(moog->getOscil1Waveform());
+	}
+}
+
+void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
+	switch (index) {
+	case oscil1Waveform:
+		vst_strncpy (label, "Shape", kVstMaxParamStrLen);
+		break;
+	}
+}
+
+void MoogPlugin::getParameterDisplay (VstInt32 index, char* text){
+	switch (index) {
+	case oscil1Waveform:
+		vst_strncpy (text, wavetypeStrings[moog->getOscil1Waveform()], kVstMaxParamStrLen);
+		break;
+
+	}
+}
+
+void MoogPlugin::getParameterName (VstInt32 index, char* text){
+	switch (index) {
+	case oscil1Waveform:
+		vst_strncpy (text, "Oscil 1 Wave", kVstMaxParamStrLen);	break;
+	}
+}
+

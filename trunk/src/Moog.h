@@ -138,6 +138,8 @@ private:
 	 */
 	void updateOscil1();
 	void updateOscil2();
+
+	char name[21];
 };
 
 #endif /* MOOG_H_ */

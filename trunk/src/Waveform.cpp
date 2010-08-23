@@ -19,15 +19,15 @@ vector<float> * Waveforms::getWaveform(wavetype_t wave) {
 		case TRIG:
 			return trig;
 		case SAWTRIG:
-			return sawtrig;
+			return trig;
 		case SAW:
 			return saw;
 		case SQUARE:
 			return square;
 		case WIDERECT:
-			return widerect;
+			return trig;
 		case NARROWRECT:
-			return narrowrect;
+			return trig;
 		default:
 			return NULL;
 	}
