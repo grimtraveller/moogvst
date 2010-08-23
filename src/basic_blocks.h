@@ -129,7 +129,11 @@ public:
 	void setWavetable(wavetype_t wave);
 	wavetype_t getWavetype();
 	float getNextValue();
-	void reset_block(void);
+	void resetBlock(void);
+
+	void setSlave(Oscil * block);
+	void setSyncON(bool ON);
+	bool getSyncON();
 private:
 	float cubic_interpolation(float phase) const;
 	float linear_interpolation(float phase) const;
@@ -137,6 +141,12 @@ private:
 	float increment;
 	float previous_phase;
 	wavetype_t wave;
+
+	Oscil * slave;
+	int last_freq;
+	int total_samples;
+	int samples_til_reset;
+	bool syncON;
 };
 
 enum noisetype {

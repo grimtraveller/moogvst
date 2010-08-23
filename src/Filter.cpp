@@ -1,6 +1,7 @@
 #include "basic_blocks.h"
 #include "globals.h"
 #include <cmath>
+#include <cstdio>
 
 Filter::Filter() :
 	BasicBlock(3) {
@@ -31,6 +32,9 @@ void Filter::setQualityInput(BasicBlock * block) {
 }
 
 float Filter::getNextValue() {
+	if (!this->ON){
+		return inputs[0]->getNextValue();
+	}
 	float input;
 	float freq;
 	float k;

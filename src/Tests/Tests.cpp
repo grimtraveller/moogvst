@@ -5,6 +5,7 @@
  *      Author: Bruno Figueira "Jedi" Lourenço
  */
 #include "../basic_blocks.h"
+#include "../Moog.h"
 #include "wav.h"
 
 #include <stdint.h>
@@ -25,8 +26,6 @@ int main(void) {
 	Filter filter;
 	int16_t samples[44100 * 2];
 	Number quality(0.0);
-	
-	
 
 	oscil.setFrequencyInput(&freq1);
 	oscil.setAmplitudeInput(&amp);
@@ -54,18 +53,16 @@ int main(void) {
 		samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Noise_test.wav", 44100, samples, 2.0);
-	
 
-	
 	noise.setType(PINK);
 	for (int i = 0; i < 44100 * 2; i++) {
-	samples[i] = noise.getNextValue() * 30000;
+		samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Pink_noise.wav", 44100, samples, 2.0);
 
 	noise.setType(PINK);
 	for (int i = 0; i < 44100 * 2; i++) {
-			samples[i] = noise.getNextValue() * 30000;
+		samples[i] = noise.getNextValue() * 30000;
 	}
 	write_wave("Pink_Noise_test.wav", 44100, samples, 2.0);
 
@@ -81,30 +78,45 @@ int main(void) {
 		samples[i] = oscil.getNextValue() * 30000;
 	}
 	write_wave("ADSR_test.wav", 44100, samples, 2.0);
-	
 
 	noise.setType(WHITE);
 
-		filter.setFrequencyInput(&freq2);
+	filter.setFrequencyInput(&freq2);
 	filter.setQualityInput(&quality);
 	adsr.resetBlock();
 	filter.setInputSignal(&oscil);
-	
+
 	for (int i = 0; i < 44100 * 2; i++) {
-		samples[i] = filter.getNextValue() * 30000;		
-		}
+		samples[i] = filter.getNextValue() * 30000;
+	}
 	write_wave("filter_test1.wav", 44100, samples, 2.0);
-	
+
+	adsr.resetBlock();
 	quality.setNumber(3.0);
-oscil.setWavetable(SQUARE);
+	oscil.setWavetable(SAW);
 	oscil.setAmplitudeInput(&adsr);
 	filter.setInputSignal(&oscil);
 	for (int i = 0; i < 44100 * 2; i++) {
 		samples[i] = filter.getNextValue() * 30000;
-		
+
 	}
 	write_wave("filter_test2.wav", 44100, samples, 2.0);
-	
-	
+
+	Moog moog;
+
+	moog.setInputFreq(440);
+	moog.setNoiseON(false);
+	moog.setOscil2Frequency(-24);
+	moog.setFilterQuality(1.0);
+	moog.setContourAmount(0.02);
+	moog.setFilterON(false);
+	moog.setSyncON(true);
+	moog.setMasterAmp(0.5);
+	for (int i = 0; i < 44100 * 2; i++) {
+		samples[i] = moog.getNextValue() * 30000;
+
+	}
+	write_wave("moog.wav", 44100, samples, 2.0);
+
 	return 0;
 }
