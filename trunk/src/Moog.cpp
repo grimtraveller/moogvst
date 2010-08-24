@@ -117,6 +117,10 @@ void Moog::setOscil1Frequency(float freq) {
 	updateOscil1();
 }
 
+float Moog::getOscil1Frequency() {
+	return oscil1FreqOffset;
+}
+
 void Moog::setOscil1ON(bool ON) {
 	oscil1.setON(ON);
 }
@@ -165,6 +169,10 @@ int Moog::getOscil2Range() {
 void Moog::setOscil2Frequency(float freq) {
 	oscil2FreqOffset = freq;
 	updateOscil2();
+}
+
+float Moog::getOscil2Frequency() {
+	return oscil2FreqOffset;
 }
 
 void Moog::setOscil2ON(bool ON) {

@@ -41,6 +41,54 @@ static float wavetype2float(wavetype_t type) {
 	}
 }
 
+static int float2range(float value) {
+	if (value <= 0.20) {
+		return 2;
+	}
+	else if (value <= 0.40) {
+		return 4;
+	}
+	else if (value <= 0.60) {
+		return 8;
+	}
+	else if (value <= 0.80) {
+		return 16;
+	}
+	else{
+		return 32;
+	}
+	return NARROWRECT;
+}
+
+static float range2float(int range) {
+	switch (range){
+	case 2:
+		return 0.0;
+	case 4:
+		return 0.40;
+	case 8:
+		return 0.60;
+	case 16:
+		return 0.80;
+	case 32:
+		return 1.00;
+	}
+	return 0.60;
+}
+
+int MoogPlugin::amp_divider() {
+	int k = 0;
+	if (moog->getOscil1ON())
+		k++;
+	if (moog->getOscil2ON()){
+		k++;
+	}
+	if (moog->getNoiseON()){
+		k++;
+	}
+	return k;
+}
+
 static char *wavetypeStrings[] = {"Trig","SawTrig","Saw","Square","WRect","Narrow"};
 
 
@@ -70,6 +118,10 @@ MoogPlugin::MoogPlugin(audioMasterCallback audioMaster) : AudioEffectX(audioMast
 	noteIsOn = false;
 	currentDelta = currentNote = currentVelocity = 0;
 	moog = new Moog();
+	moog->setOscil1Amp(1.0/3.0);
+	moog->setOscil2Amp(1.0/3.0);
+
+	moog->setOscil2ON(false);
 	moog->setNoiseON(false);
 	moog->setFilterON(false);
 	moog->setMasterAmp(1.0f);
@@ -159,6 +211,34 @@ void MoogPlugin::setParameter(VstInt32 index, float value){
 	switch (index) {
 	case oscil1Waveform:
 		moog->setOscil1Waveform(float2wavetype(value));
+		break;
+	case oscil1Amp:
+		moog->setOscil1Amp(value/3.0f);
+		break;
+	case oscil1Range:
+		moog->setOscil1Range(float2range(value));
+		break;
+	case oscil1Freq:
+		moog->setOscil1Frequency(value*24 - 12);
+		break;
+	case oscil1ON:
+		moog->setOscil1ON(value >= 0.5);
+		break;
+	case oscil2Waveform:
+		moog->setOscil2Waveform(float2wavetype(value));
+		break;
+	case oscil2Amp:
+		moog->setOscil2Amp(value/3.0f);
+		break;
+	case oscil2Range:
+		moog->setOscil2Range(float2range(value));
+		break;
+	case oscil2Freq:
+		moog->setOscil2Frequency(value*24 - 12);
+		break;
+	case oscil2ON:
+		moog->setOscil2ON(value >= 0.5);
+		break;
 	}
 }
 
@@ -166,30 +246,125 @@ float MoogPlugin::getParameter(VstInt32 index) {
 	switch (index) {
 	case oscil1Waveform:
 		return wavetype2float(moog->getOscil1Waveform());
+	case oscil1Amp:
+		return 3.0f*moog->getOscil1Amp();
+	case oscil1Range:
+		return range2float(moog->getOscil1Range());
+	case oscil1Freq:
+		return ((moog->getOscil1Frequency() + 12)/24);
+		break;
+	case oscil1ON:
+		return moog->getOscil1ON() ? 1.0 : 0.0;
+		break;
+	case oscil2Waveform:
+		return wavetype2float(moog->getOscil2Waveform());
+	case oscil2Amp:
+		return 3.0f*moog->getOscil2Amp();
+	case oscil2Range:
+		return range2float(moog->getOscil2Range());
+	case oscil2Freq:
+		return ((moog->getOscil2Frequency() + 12)/24);
+		break;
+	case oscil2ON:
+		return moog->getOscil2ON() ? 1.0 : 0.0;
+		break;
 	}
 }
 
 void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 	switch (index) {
 	case oscil1Waveform:
+	case oscil2Waveform:
 		vst_strncpy (label, "Shape", kVstMaxParamStrLen);
 		break;
+	case oscil1Amp:
+	case oscil2Amp:
+		vst_strncpy (label, "Amp", kVstMaxParamStrLen);
+		break;
+	case oscil1Range:
+	case oscil2Range:
+	case oscil1Freq:
+	case oscil2Freq:
+	case oscil1ON:
+	case oscil2ON:
+		break;
+	
 	}
 }
 
 void MoogPlugin::getParameterDisplay (VstInt32 index, char* text){
 	switch (index) {
+	/* 
+	 * Oscil 1
+	 */
 	case oscil1Waveform:
 		vst_strncpy (text, wavetypeStrings[moog->getOscil1Waveform()], kVstMaxParamStrLen);
 		break;
-
+	case oscil1Amp:
+		float2string(moog->getOscil1Amp()*3.0f,text,kVstMaxParamStrLen);
+		break;
+	case oscil1Range:
+		int2string(moog->getOscil1Range(),text, kVstMaxParamStrLen);
+		break;
+	case oscil1Freq:
+		float2string(moog->getOscil1Frequency(),text,kVstMaxParamStrLen);
+		break;
+	case oscil1ON:
+		vst_strncpy(text, moog->getOscil1ON() ? "On" : "Off", kVstMaxParamStrLen);
+		break;
+	/* 
+	 * Oscil 2
+	 */
+	case oscil2Waveform:
+		vst_strncpy (text, wavetypeStrings[moog->getOscil2Waveform()], kVstMaxParamStrLen);
+		break;
+	case oscil2Amp:
+		float2string(moog->getOscil2Amp()*3.0f,text,kVstMaxParamStrLen);
+		break;
+	case oscil2Range:
+		int2string(moog->getOscil2Range(),text, kVstMaxParamStrLen);
+		break;
+	case oscil2Freq:
+		float2string(moog->getOscil2Frequency(),text,kVstMaxParamStrLen);
+		break;
+	case oscil2ON:
+		vst_strncpy(text, moog->getOscil2ON() ? "On" : "Off", kVstMaxParamStrLen);
+		break;
 	}
 }
 
 void MoogPlugin::getParameterName (VstInt32 index, char* text){
 	switch (index) {
 	case oscil1Waveform:
-		vst_strncpy (text, "Oscil 1 Wave", kVstMaxParamStrLen);	break;
+		vst_strncpy (text, "O1Wave", kVstMaxParamStrLen);	
+		break;
+	case oscil1Amp:
+		vst_strncpy (text, "O1Amp", kVstMaxParamStrLen);	
+		break;
+	case oscil1Range:
+		vst_strncpy (text, "O1Range", kVstMaxParamStrLen);	
+		break;
+	case oscil1Freq:
+		vst_strncpy (text, "O1Freq", kVstMaxParamStrLen);
+		break;
+	case oscil1ON:
+		vst_strncpy (text, "O1Power", kVstMaxParamStrLen);
+		break;
+	case oscil2Waveform:
+		vst_strncpy (text, "O2Wave", kVstMaxParamStrLen);	
+		break;
+	case oscil2Amp:
+		vst_strncpy (text, "O2Amp", kVstMaxParamStrLen);	
+		break;
+	case oscil2Range:
+		vst_strncpy (text, "O2Range", kVstMaxParamStrLen);	
+		break;
+	case oscil2Freq:
+		vst_strncpy (text, "O2Freq", kVstMaxParamStrLen);
+		break;
+	case oscil2ON:
+		vst_strncpy (text, "O2Power", kVstMaxParamStrLen);
+		break;
 	}
 }
 
