@@ -76,19 +76,6 @@ static float range2float(int range) {
 	return 0.60;
 }
 
-int MoogPlugin::amp_divider() {
-	int k = 0;
-	if (moog->getOscil1ON())
-		k++;
-	if (moog->getOscil2ON()){
-		k++;
-	}
-	if (moog->getNoiseON()){
-		k++;
-	}
-	return k;
-}
-
 static char *wavetypeStrings[] = {"Trig","SawTrig","Saw","Square","WRect","Narrow"};
 
 
@@ -239,6 +226,9 @@ void MoogPlugin::setParameter(VstInt32 index, float value){
 	case oscil2ON:
 		moog->setOscil2ON(value >= 0.5);
 		break;
+	case oscilSync:
+		moog->setSyncON(value >= 0.5);
+		break;
 	}
 }
 
@@ -268,6 +258,8 @@ float MoogPlugin::getParameter(VstInt32 index) {
 	case oscil2ON:
 		return moog->getOscil2ON() ? 1.0 : 0.0;
 		break;
+	case oscilSync:
+		return moog->getSyncON() ? 1.0 : 0.0;
 	}
 }
 
@@ -287,6 +279,7 @@ void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 	case oscil2Freq:
 	case oscil1ON:
 	case oscil2ON:
+	case oscilSync:
 		break;
 	
 	}
@@ -330,6 +323,9 @@ void MoogPlugin::getParameterDisplay (VstInt32 index, char* text){
 	case oscil2ON:
 		vst_strncpy(text, moog->getOscil2ON() ? "On" : "Off", kVstMaxParamStrLen);
 		break;
+	case oscilSync:
+		vst_strncpy(text, moog->getSyncON() ? "On" : "Off", kVstMaxParamStrLen);
+		break;
 	}
 }
 
@@ -364,6 +360,9 @@ void MoogPlugin::getParameterName (VstInt32 index, char* text){
 		break;
 	case oscil2ON:
 		vst_strncpy (text, "O2Power", kVstMaxParamStrLen);
+		break;
+	case oscilSync:
+		vst_strncpy (text, "Osc Sync", kVstMaxParamStrLen);
 		break;
 	}
 }
