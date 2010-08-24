@@ -50,7 +50,7 @@ float Oscil::getNextValue() {
 	freq = inputs[0]->getNextValue();
 
 	if (syncON && (slave != NULL)) {
-		if (last_freq != freq) {
+		if (fabs(last_freq-freq) >= 0.01) {
 			last_freq = freq;
 			samples_til_reset = sample_rate /  freq;
 			total_samples = 1;

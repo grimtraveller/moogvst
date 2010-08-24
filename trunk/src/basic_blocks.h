@@ -143,7 +143,7 @@ private:
 	wavetype_t wave;
 
 	Oscil * slave;
-	int last_freq;
+	double last_freq;
 	int total_samples;
 	int samples_til_reset;
 	bool syncON;

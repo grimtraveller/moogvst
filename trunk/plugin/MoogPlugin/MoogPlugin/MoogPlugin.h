@@ -1,7 +1,7 @@
 #include "audioeffectx.h"
 #include "Moog.h"
 
-#define NUM_PARAMS 10
+#define NUM_PARAMS 11
 enum {
 	oscil1Waveform = 0,
 	oscil1Amp,
@@ -12,7 +12,8 @@ enum {
 	oscil2Amp,
 	oscil2Range,
 	oscil2Freq,
-	oscil2ON
+	oscil2ON,
+	oscilSync
 };
 
 class MoogPlugin : public AudioEffectX {
@@ -41,9 +42,4 @@ private:
 	virtual void getParameterDisplay (VstInt32 index, char* text);
 	virtual void getParameterName (VstInt32 index, char* text);
 
-	/*
-     * 
-	 * Aux
-	 */
-	int amp_divider();
 };
