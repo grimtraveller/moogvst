@@ -83,6 +83,9 @@ float Moog::getNextValue() {
 	return mult_aux2.getNextValue();
 }
 
+void Moog::release() {
+	env.setPhase(RELEASE);
+}
 /*
  * Oscil1
  */
@@ -300,6 +303,14 @@ float Moog::getSustain() {
 	return env.getSustain();
 }
 
+void Moog::setReleaseON(bool ON){
+	env.setReleaseON(ON);
+}
+
+bool Moog::getReleaseON() {
+	return env.getReleaseON();
+}
+
 void Moog::setEnvON(bool ON){
 	env.setON(ON);
 }
@@ -307,6 +318,7 @@ void Moog::setEnvON(bool ON){
 bool Moog::getEnvON() {
 	return env.getON();
 }
+
 /*
  * Aux
  */

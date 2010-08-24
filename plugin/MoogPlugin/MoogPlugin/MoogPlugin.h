@@ -1,7 +1,7 @@
 #include "audioeffectx.h"
 #include "Moog.h"
 
-#define NUM_PARAMS 11
+#define NUM_PARAMS 18
 enum {
 	oscil1Waveform = 0,
 	oscil1Amp,
@@ -13,7 +13,17 @@ enum {
 	oscil2Range,
 	oscil2Freq,
 	oscil2ON,
-	oscilSync
+	oscilSync,
+	noiseType,
+	noiseAmp,
+	noiseON,
+	filterCutoff,
+	filterContourAmount,
+	filterQuality,
+	filterON,
+	filterAttack,
+	filterDecay,
+	filterSustain
 };
 
 class MoogPlugin : public AudioEffectX {

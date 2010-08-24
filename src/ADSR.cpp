@@ -26,6 +26,11 @@ ADSR::ADSR(float attack, float decay, float sustain, float release) :
 
 }
 
+void ADSR::setPhase(phase_t phase) {
+	current_phase = phase;
+	current_phase_samples = 0;
+}
+
 void ADSR::resetBlock() {
 	current_phase = ATTACK;
 	current_phase_samples = 0;
