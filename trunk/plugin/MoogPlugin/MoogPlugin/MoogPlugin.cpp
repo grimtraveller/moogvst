@@ -107,6 +107,9 @@ MoogPlugin::MoogPlugin(audioMasterCallback audioMaster) : AudioEffectX(audioMast
 	moog = new Moog();
 	moog->setOscil1Amp(1.0/3.0);
 	moog->setOscil2Amp(1.0/3.0);
+	moog->setNoiseAmp(1.0/3.0);
+	moog->setInputFreq(0);
+	
 
 	moog->setOscil2ON(false);
 	moog->setNoiseON(false);
@@ -138,12 +141,9 @@ void MoogPlugin::processReplacing(float **inputs, float **outputs, VstInt32 samp
 			currentDelta = 0;
 		}
 		
-		for (VstInt32 i = 0; i < sampleFrames; i++) {
-			out1[i] = moog->getNextValue();
-		}
 	}						
-	else{
-		memset (out1, 0, sampleFrames * sizeof (float));
+	for (VstInt32 i = 0; i < sampleFrames; i++) {
+		out1[i] = moog->getNextValue();
 	}
 }
 
@@ -188,6 +188,7 @@ void MoogPlugin::noteOn (VstInt32 note, VstInt32 velocity, VstInt32 delta) {
 
 void MoogPlugin::noteOff () {
 	noteIsOn = false;
+	moog->release();
 }
 
 /*
@@ -229,6 +230,27 @@ void MoogPlugin::setParameter(VstInt32 index, float value){
 	case oscilSync:
 		moog->setSyncON(value >= 0.5);
 		break;
+	case noiseType:
+		moog->setNoiseType(value <= 0.5 ? WHITE : PINK);
+		break;
+	case noiseAmp:
+		moog->setNoiseAmp(value/3.0f);
+		break;
+	case noiseON:
+		moog->setNoiseON(value >= 0.5);
+		break;
+	case filterCutoff:
+		moog->setFilterCutoffFreq(2000*value);
+		break;
+	case filterContourAmount:
+		moog->setContourAmount(value);
+		break;
+	case filterQuality:
+		moog->setFilterQuality(value*3.5);
+		break;
+	case filterON:
+		moog->setFilterON(value >= 0.5);
+		break;
 	}
 }
 
@@ -260,6 +282,28 @@ float MoogPlugin::getParameter(VstInt32 index) {
 		break;
 	case oscilSync:
 		return moog->getSyncON() ? 1.0 : 0.0;
+		break;
+	case noiseType:
+		return moog->getNoiseType() == WHITE ? 0.0 : 1.0;
+		break;
+	case noiseAmp:
+		return moog->getNoiseAmp()*3.0f;
+		break;
+	case noiseON:
+		return moog->getNoiseON() ? 1.0 : 0.0;
+		break;
+	case filterCutoff:
+		return moog->getfilterCutoffFreq()/2000.0;
+		break;
+	case filterContourAmount:
+		return moog->getContourAmount();
+		break;
+	case filterQuality:
+		return moog->getFilterQuality()/3.5;
+		break;
+	case filterON:
+		return moog->getFilterON() ? 1.0 : 0.0;
+		break;
 	}
 }
 
@@ -271,6 +315,7 @@ void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 		break;
 	case oscil1Amp:
 	case oscil2Amp:
+	case noiseAmp:
 		vst_strncpy (label, "Amp", kVstMaxParamStrLen);
 		break;
 	case oscil1Range:
@@ -280,8 +325,16 @@ void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 	case oscil1ON:
 	case oscil2ON:
 	case oscilSync:
+	case noiseType:
+	case noiseON:
 		break;
-	
+	case filterCutoff:
+		vst_strncpy (label, "Hz", kVstMaxParamStrLen);
+		break;
+	case filterContourAmount:
+	case filterQuality:
+	case filterON:
+		break;
 	}
 }
 
@@ -326,6 +379,33 @@ void MoogPlugin::getParameterDisplay (VstInt32 index, char* text){
 	case oscilSync:
 		vst_strncpy(text, moog->getSyncON() ? "On" : "Off", kVstMaxParamStrLen);
 		break;
+	/* 
+     * Noise
+	 */
+	case noiseType:
+		vst_strncpy(text, moog->getNoiseType() == WHITE ? "White" : "Pink", kVstMaxParamStrLen);
+		break;
+	case noiseAmp:
+		float2string(moog->getNoiseAmp()*3.0f,text,kVstMaxParamStrLen);
+		break;
+	case noiseON:
+		vst_strncpy(text, moog->getNoiseON() ? "On" : "Off", kVstMaxParamStrLen);
+		break;
+	/*
+	 * Filter
+	 */
+	case filterCutoff:
+		float2string(moog->getfilterCutoffFreq(),text,kVstMaxParamStrLen);
+		break;
+	case filterContourAmount:
+		float2string(moog->getContourAmount(),text,kVstMaxParamStrLen);
+		break;
+	case filterQuality:
+		float2string(moog->getFilterQuality()/3.5,text,kVstMaxParamStrLen);		
+		break;
+	case filterON:
+		vst_strncpy(text, moog->getFilterON() ? "On" : "Off", kVstMaxParamStrLen);		
+		break;
 	}
 }
 
@@ -363,6 +443,27 @@ void MoogPlugin::getParameterName (VstInt32 index, char* text){
 		break;
 	case oscilSync:
 		vst_strncpy (text, "Osc Sync", kVstMaxParamStrLen);
+		break;
+	case noiseType:
+		vst_strncpy (text, "NType", kVstMaxParamStrLen);
+		break;
+	case noiseAmp:
+		vst_strncpy (text, "NAmp", kVstMaxParamStrLen);	
+		break;
+	case noiseON:
+		vst_strncpy (text, "NPower", kVstMaxParamStrLen);
+		break;
+	case filterCutoff:
+		vst_strncpy (text, "FCutoff", kVstMaxParamStrLen);
+		break;
+	case filterContourAmount:
+		vst_strncpy (text, "FCAmount", kVstMaxParamStrLen);
+		break;
+	case filterQuality:
+		vst_strncpy (text, "FQuality", kVstMaxParamStrLen);
+		break;
+	case filterON:
+		vst_strncpy (text, "FPower", kVstMaxParamStrLen);
 		break;
 	}
 }

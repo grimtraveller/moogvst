@@ -19,6 +19,7 @@ public:
 	 *
 	 */
 	void setInputFreq(float freq);
+	void release();
 	float getInputFreq();
 	void setMasterAmp(float amp);
 	float getMasterAmp();
@@ -92,6 +93,8 @@ public:
 	float getDecay();
 	void setSustain(float sustain);
 	float getSustain();
+	void setReleaseON(bool ON);
+	bool getReleaseON();
 	void setEnvON(bool ON);
 	bool getEnvON();
 

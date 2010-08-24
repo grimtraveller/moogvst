@@ -173,6 +173,11 @@ private:
 	float contrib[5];
 };
 
+enum phasetype {
+	ATTACK, DECAY, SUSTAIN, RELEASE
+};
+typedef enum phasetype phase_t;
+
 class ADSR: public BasicBlock {
 public:
 	ADSR();
@@ -180,6 +185,8 @@ public:
 	void resetBlock();
 	float getNextValue();
 
+	void setPhase(phase_t phase);
+	phase_t getPhase();
 
 	void setAttack(float attack);
 	float getAttack() const;
@@ -202,10 +209,7 @@ public:
 	float getAttack_sharpness() const;
 	bool getReleaseON() const;
 private:
-	enum phasetype {
-		ATTACK, DECAY, SUSTAIN, RELEASE
-	};
-	typedef enum phasetype phase_t;
+
 	/*
 	 * Indica em qual fase a envoltória está atualmente
 	 */
