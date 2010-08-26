@@ -11,64 +11,51 @@
 #include <ctime>
 #include <stdio.h>
 
+static float b0;
+static float b1;
+static float b2;
+static float b3;
+static float b4;
+static float b5;
+static float b6;
 Noise::Noise() :
 	BasicBlock(1) {
 	setType(WHITE);
-	contrib[0] = 0.0f;
-	contrib[1] = 0.0f;
-	contrib[2] = 0.0f;
-	contrib[3] = 0.0f;
-	contrib[4] = 0.0f;
+	b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
 }
 
-float generateWhiteNoise() {
+static float generateWhiteNoise() {
 	return (2.0f * rand() / RAND_MAX) - 1.0f;
+}
+
+static float generatePinkNoise() {
+	float white = (2.0f * rand() / RAND_MAX) - 1.0f;
+	float pink;
+	b0 = 0.99886 * b0 + white * 0.0555179;
+	b1 = 0.99332 * b1 + white * 0.0750759;
+	b2 = 0.96900 * b2 + white * 0.1538520;
+	b3 = 0.86650 * b3 + white * 0.3104856;
+	b4 = 0.55000 * b4 + white * 0.5329522;
+	b5 = -0.7616 * b5 - white * 0.0168980;
+	pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+	b6 = white * 0.115926;
+	return pink / 10.0;
+
 }
 
 void Noise::setAmplitudeInput(BasicBlock * block) {
 	(this->inputs)[0] = block;
 }
-/*
- * Okay, here is the algorithm that includes a coefficient set to cover
- *  approximately 9 octaves conforming to the "pink" 1/f power distribution.
- *  First, we need to define the parameters. The pP and the pA parameters are
- *  the amplitude scaling and probability of update parameters described 
- * in http://home.earthlink.net/~ltrammell/tech/pinkalg.htm.
- * 
- * referencia:  http://home.earthlink.net/~ltrammell/tech/newpink.htm
- * 
- * */
-float Noise::generatePinkNoise() {
 
-	float pA[] = { 3.8024, 2.9694, 2.5970, 3.0870, 3.4006 };
-	float pP[] = { 0.00198, 0.01280, 0.04900, 0.17000, 0.68200 };
-	float pSUM[] = { 0.00198, 0.01478, 0.06378, 0.23378, 0.91578 };
-	float ur2;
-	float acc = 0;
-
-	float ur1 = rand() * 1.0f / RAND_MAX;
-	for (int i = 0; i < 5; i++) {
-		if (ur1 <= pSUM[i]) {
-			ur2 = rand() * 1.0f / RAND_MAX;
-			this->contrib[i] += 2 * (ur2 - 0.5) * pA[i];
-			break;
-		}
-	}
-	for (int i = 0; i < 5; i++)
-		acc += this->contrib[i];
-	return acc / 500.0f;
-}
 
 void Noise::setType(noisetype_t type) {
 	this->noise_type = type;
-
+	srand(time(NULL));
 	if (type == WHITE) {
 		this->noiseGenerator = generateWhiteNoise;
-		srand(time(NULL));
+		
 	} else {
-
-		srand(time(NULL));
-
+		this->noiseGenerator = generatePinkNoise;
 	}
 }
 
@@ -80,9 +67,5 @@ float Noise::getNextValue() {
 	if (!this->ON)
 		return 0.0;
 	float amp = inputs[0]->getNextValue();
-	if (this->noise_type == WHITE)
-		return amp * this->noiseGenerator();
-	else
-		return amp * this->generatePinkNoise();
-
+	return amp * this->noiseGenerator();
 }

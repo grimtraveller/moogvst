@@ -251,6 +251,27 @@ void MoogPlugin::setParameter(VstInt32 index, float value){
 	case filterON:
 		moog->setFilterON(value >= 0.5);
 		break;
+	case filterAttack:
+		moog->setFilterAttack(value);
+		break;
+	case filterDecay:
+		moog->setFilterDecay(value);
+		break;
+	case filterSustain:
+		moog->setFilterSustainLevel(value);
+		break;
+	case envAttack:
+		moog->setAttack(value);
+		break;
+	case envDecay:
+		moog->setDecay(value);
+		break;
+	case envSustain:
+		moog->setSustainLevel(value);
+		break;
+	case masterAmp:
+		moog->setMasterAmp(value);
+		break;
 	}
 }
 
@@ -304,6 +325,27 @@ float MoogPlugin::getParameter(VstInt32 index) {
 	case filterON:
 		return moog->getFilterON() ? 1.0 : 0.0;
 		break;
+	case filterAttack:
+		return moog->getFilterAttack();
+		break;
+	case filterDecay:
+		return moog->getFilterDecay();
+		break;
+	case filterSustain:
+		return moog->getFilterSustainLevel();
+		break;
+	case envAttack:
+		return moog->getAttack();
+		break;
+	case envDecay:
+		return moog->getDecay();
+		break;
+	case envSustain:
+		return moog->getSustainLevel();
+		break;
+	case masterAmp:
+		return moog->getMasterAmp();
+		break;
 	}
 }
 
@@ -316,6 +358,7 @@ void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 	case oscil1Amp:
 	case oscil2Amp:
 	case noiseAmp:
+	case masterAmp:
 		vst_strncpy (label, "Amp", kVstMaxParamStrLen);
 		break;
 	case oscil1Range:
@@ -334,6 +377,14 @@ void MoogPlugin::getParameterLabel (VstInt32 index, char* label){
 	case filterContourAmount:
 	case filterQuality:
 	case filterON:
+	case filterSustain:
+	case envSustain:
+		break;
+	case filterAttack:
+	case filterDecay:
+	case envAttack:
+	case envDecay:
+		vst_strncpy (label, "s", kVstMaxParamStrLen);
 		break;
 	}
 }
@@ -406,6 +457,31 @@ void MoogPlugin::getParameterDisplay (VstInt32 index, char* text){
 	case filterON:
 		vst_strncpy(text, moog->getFilterON() ? "On" : "Off", kVstMaxParamStrLen);		
 		break;
+	case filterAttack:
+		float2string(moog->getFilterAttack(), text, kVstMaxParamStrLen);
+		break;
+	case filterDecay:
+		float2string(moog->getFilterDecay(), text, kVstMaxParamStrLen);
+		break;
+	case filterSustain:
+		float2string(moog->getFilterSustainLevel(), text, kVstMaxParamStrLen);
+		break;
+	/*
+	 * Env
+	 */
+	case envAttack:
+		float2string(moog->getAttack(), text, kVstMaxParamStrLen);
+		break;
+	case envDecay:
+		float2string(moog->getDecay(), text, kVstMaxParamStrLen);
+		break;
+	case envSustain:
+		float2string(moog->getSustainLevel(), text, kVstMaxParamStrLen);
+		break;
+
+	case masterAmp:
+		float2string(moog->getMasterAmp(), text, kVstMaxParamStrLen);
+		break;
 	}
 }
 
@@ -464,6 +540,27 @@ void MoogPlugin::getParameterName (VstInt32 index, char* text){
 		break;
 	case filterON:
 		vst_strncpy (text, "FPower", kVstMaxParamStrLen);
+		break;
+	case filterAttack:
+		vst_strncpy (text, "FAttack", kVstMaxParamStrLen);
+		break;
+	case filterDecay:
+		vst_strncpy (text, "FDecay", kVstMaxParamStrLen);
+		break;
+	case filterSustain:
+		vst_strncpy (text, "FSLevel", kVstMaxParamStrLen);
+		break;
+	case envAttack:
+		vst_strncpy (text, "EAttack", kVstMaxParamStrLen);
+		break;
+	case envDecay:
+		vst_strncpy (text, "EDecay", kVstMaxParamStrLen);
+		break;
+	case envSustain:
+		vst_strncpy (text, "ESLevel", kVstMaxParamStrLen);
+		break;
+	case masterAmp:
+		vst_strncpy (text, "MAmp", kVstMaxParamStrLen);
 		break;
 	}
 }

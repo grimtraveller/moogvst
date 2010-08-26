@@ -267,6 +267,14 @@ float Moog::getFilterSustain() {
 	return filter_env.getSustain();
 }
 
+void Moog::setFilterSustainLevel(float amp) {
+	filter_env.setSustain_amp(amp);
+}
+
+float Moog::getFilterSustainLevel() {
+	return filter_env.getSustain_amp();
+}
+
 void Moog::setFilterON(bool ON){
 	filter.setON(ON);
 }
@@ -317,6 +325,14 @@ void Moog::setEnvON(bool ON){
 
 bool Moog::getEnvON() {
 	return env.getON();
+}
+
+void Moog::setSustainLevel(float value) {
+	env.setSustain_amp(value);
+}
+
+float Moog::getSustainLevel() {
+	return env.getSustain_amp();
 }
 
 /*

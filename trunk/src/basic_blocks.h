@@ -167,10 +167,8 @@ public:
 	float getNextValue();
 	void setAmplitudeInput(BasicBlock * block);
 private:
-	float generatePinkNoise();
 	noisetype_t noise_type;
 	float (*noiseGenerator)();
-	float contrib[5];
 };
 
 enum phasetype {
