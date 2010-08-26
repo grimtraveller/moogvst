@@ -1,0 +1,84 @@
+\documentclass{article}
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsfonts,amstext}
+
+
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{graphicx}
+\title{Implementacao digital de um Minimoog}
+\author{Bruno Figueira Lourenço \\ Jonathan Alis Salgado Lima}
+
+\begin{document}
+\maketitle
+
+\section{Introdução}
+O Objetivo desse trabalho e fazer uma implementacao digital de um minimoog em forma de plugin VSTi.
+o Minimoog e um sintetizador que usa sintese subtrativa pra gerar seus sons...
+
+çé
+\section{Blocos Basicos}
+
+Para construir a arquitetura de um minimoog, precisaremos de diversos blocos. Entre eles precisamos de somadores, que somam as entradas; multiplicadores, que multiplicam as entradas; multiplexadores, que escolhe uma das entradas; numeros 
+
+
+\section{Filtro}
+
+O filtro eh uma implementacao digital dos filtros controlados por tensao(VCF)usados nos minimoogs, feito por Robert Moog. Esse filtro eh uma construcao em serie de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a frequencia de corte,alem de uma realimentacao invertida multiplicada por um fator de qualidade (k) que varia de 0 a 4.
+O comportamento dele eh dependente do k, para k=0 ele atua como um passa baixa, com o crescimento de k, aparece uma elevacao 
+cada vez mais acentuada na funcao de transferencia no valor da frequencia de corte, e quando k chega a 4 o filtro passa a oscilar.
+Cada um dos 4 estagios do filtro pode ser representado pela funcao de transferencia
+
+\begin{equation}\label{eq:(1)}
+G(s) = \frac{\omega_c}{\omega_c+s}  
+\end{equation}
+
+Onde $\omega_c$ eh a frequencia de corte em radianos, e s eh a variavel da transformada de laplace.
+Ao serializar 4 esses filtros e introduzir uma realimentacao com o fator -k, a funcao de transferencia fica
+
+\begin{equation}\label{eq:(2)}
+ H(s) = \frac{G(s)^4}{1+k G(s)^4} 
+\end{equation}
+
+
+Para discretizar o filtro, usamos uma transformacao bilinear para obtermos uma G(z) a partir da G(s), 
+com uma simples nova estimativa do valor $\omega_c$, chamaremos essa estimativa de $\omega_c$~.
+substituindo s por $(\frac{2}{T})(\frac{z-1}{z+1})$ em (1), obtemos:
+
+\begin{equation}\label{eq:(3)}
+G(z) = b_0 \frac{1+z^{-1}}{1+a_1 z^{-1}}  
+\end{equation}
+
+
+Onde $b_0 = \frac{T \tilde{\omega_c}}{T \tilde{\omega_c}+2}$ e $a_1 = \frac{T \tilde{\omega_c} -2}{T\tilde{\omega_c} +2}$, onde $T$ eh o periodo de amostragem.
+Pela definicao de transformacao bilinear a pulsacao antitransformada $\tilde{\omega_c}$ do filtro digital eh
+
+\begin{equation}\label{eq:(4)}
+\tilde{\omega_c} = b_0 \frac{2}{T} \tan({\frac{T \omega_c}{2}} ) 
+\end{equation}
+
+Bem com isso temos apenas a funcao de transaferencia de um estagio do filtro, mas precisamos da implementacao digital dele.
+Fazendo $G(z) = \frac{Y(z)}{X(z)}$, e igualando a (3) e isolando Y(z), obtemos
+
+
+\begin{equation}\label{eq:(5)}
+Y(z) = b_0(X(z)+X(z)z^{-1})-a_1Y(z)z^{-1}
+\end{equation}
+
+Usando a transformada inversa z:
+
+\begin{equation}\label{eq:(6)}
+y(n)=b_0(x(n)+x(n-1))-a_1 y(n-1)  
+\end{equation}
+
+
+Esse eh o nosso G(z), serializando 4 desses e acrescentando a realimentacao, o filtro fica implementado.
+
+Em C++, foi feita a classe Filter, no arquivo Filter.cpp, que deriva da classe BasicBlock. Um objeto da classe Filter e criado com 3 BasicBlocks como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequencia de corte do filtro e o fator de qualidade. Como o proximo valor da saida do filtro depende das entradas e saidas anteriores de cada um dos estagios, foi nescessario criar os atributos para guardar os valores anteriores e atualiza-los a cada solicitacao de novo valor para saida.
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliografia}
+\end{document}
+
