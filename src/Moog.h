@@ -81,6 +81,8 @@ public:
 	float getFilterDecay();
 	void setFilterSustain(float sustain);
 	float getFilterSustain();
+	void setFilterSustainLevel(float amp);
+	float getFilterSustainLevel();
 	void setFilterON(bool ON);
 	bool getFilterON();
 
@@ -93,6 +95,8 @@ public:
 	float getDecay();
 	void setSustain(float sustain);
 	float getSustain();
+	void setSustainLevel(float amp);
+	float getSustainLevel();
 	void setReleaseON(bool ON);
 	bool getReleaseON();
 	void setEnvON(bool ON);
