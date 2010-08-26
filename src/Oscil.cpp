@@ -7,6 +7,7 @@
 
 #include "basic_blocks.h"
 #include "globals.h"
+#include <cmath>
 
 Oscil::Oscil() :
 	BasicBlock(2), table(Waveforms::getWaveform(TRIG)), increment(0.0),
