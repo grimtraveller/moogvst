@@ -37,15 +37,7 @@ public:
 	void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames);
 	double freqTable[128];
 	VstInt32 processEvents (VstEvents* ev);
-private:
-	VstInt32 currentNote;
-	VstInt32 currentVelocity;
-	VstInt32 currentDelta;
-	bool noteIsOn;
-	void noteOn (VstInt32 note, VstInt32 velocity, VstInt32 delta);
-	void noteOff ();
-	Moog * moog;
-
+	
 	/*
 	 * Parâmetros
 	 *
@@ -55,5 +47,14 @@ private:
 	virtual void getParameterLabel (VstInt32 index, char* label);
 	virtual void getParameterDisplay (VstInt32 index, char* text);
 	virtual void getParameterName (VstInt32 index, char* text);
+private:
+	VstInt32 currentNote;
+	VstInt32 currentVelocity;
+	VstInt32 currentDelta;
+	bool noteIsOn;
+	void noteOn (VstInt32 note, VstInt32 velocity, VstInt32 delta);
+	void noteOff ();
+	Moog * moog;
+
 
 };
