@@ -25,9 +25,9 @@ vector<float> * Waveforms::getWaveform(wavetype_t wave) {
 		case SQUARE:
 			return square;
 		case WIDERECT:
-			return trig;
+			return widerect;
 		case NARROWRECT:
-			return trig;
+			return narrowrect;
 		default:
 			return NULL;
 	}
@@ -36,21 +36,39 @@ vector<float> * Waveforms::getWaveform(wavetype_t wave) {
 static float triangular_wave(float x) {
 	float aux;
 	aux = fmod(x, 1.0f);
-	if (aux < 0.5){
-		return 2.0*aux;
+	if (aux < 0.5f){
+		return 4.0f*aux - 1.0f;
 	}
-	return -2.0*aux + 2;
+	return -4.0f*aux + 3.0f;
 }
 
-static float square_wave(float x){
-	float aux;
+static float square_wave(float x) {
+	float aux; 
 	aux = fmod(x, 1.0f);
 	if (aux < 0.5)
 		return 1.0;
 	return -1.0;
 }
 
-static float sawtooth_wave(float x){
+static float narrow_wave(float x) {
+	float aux;
+	aux = fmod(x, 1.0f);
+	if (aux < 0.2) {
+		return 1.0;
+	}
+	return -1.0;
+}
+
+static float wide_wave(float x) {
+	float aux;
+	aux = fmod(x, 1.0f);
+	if (aux < 0.7) {
+		return 1.0;
+	}
+	return -1.0;
+}
+
+static float sawtooth_wave(float x) {
 	return x - floor(x);
 }
 
@@ -69,6 +87,8 @@ void Waveforms::initializeWaves(int length, int extraPoints) {
 		(*trig)[i] = triangular_wave(aux);
 		(*square)[i] = square_wave(aux);
 		(*saw)[i] = sawtooth_wave(aux);
+		(*narrowrect)[i] = narrow_wave(aux);
+		(*widerect)[i] = wide_wave(aux);
 	}
 }
 
