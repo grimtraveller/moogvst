@@ -7,46 +7,82 @@
 \usepackage{booktabs}
 \usepackage{geometry}
 \usepackage{graphicx}
-\title{Implementacao digital de um Minimoog}
+\title{Implementação digital de um Minimoog}
 \author{Bruno Figueira Lourenço \\ Jonathan Alis Salgado Lima}
 
 \begin{document}
 \maketitle
 
 \section{Introdução}
-O Objetivo desse trabalho e fazer uma implementacao digital de um minimoog em forma de plugin VSTi.
-o Minimoog e um sintetizador que usa sintese subtrativa pra gerar seus sons...
+O objetivo desse trabalho foi fazer uma implementação digital de um Minimoog em forma de \emph{plugin} VSTi.
 
 
-\section{Blocos Basicos}
 
-Para construir a arquitetura de um minimoog, precisaremos de diversos blocos básicos para passar os dados da forma como queremos, e poder organizar a arquitetura.
-Eles são números, somadores, multiplicadores, multiplexadores, osciladores, geradores de ruído, ADSR e o filtro.
-Todos esses derivam de uma classe chamada BacisBlocks, ela pode receber de entrada na construção um número qualquer de blocos como entrada e com funções para setar ligado ou desligado e identificar isso, resetar o bloco, e obter a próximo amostra do bloco, essas funções serão implementadas nas classes que herdarão a BasicBlock.
-\subsection{Numero}
+\section{Arquitetura Geral do Sistema}
+A implementação do Minimoog foi divida em duas partes, que correspondem às 
+duas pastas na estrutura de diretórios do projeto:
+
+\begin{itemize}
+	\item \emph{src} - Contém as classes responsáveis por efetuar 
+	a síntese de áudio propriamente dita. Além disso contém um diretório 
+	de testes (\emph{Tests}) para os blocos de síntese construídos.
+	\item \emph{plugin} - Contém as classes responsáveis por fazer a 
+	interface entre a síntese de áudio e a API VST.
+\end{itemize}
+
+\section{Síntese de Áudio}
+Para implementar o Moog, optou-se por dividir em diversos blocos básicos, 
+que representam cada um dos blocos que compõem o instrumento. Para isso, 
+criou-se a classe \emph{BasicBlock} (\emph{basic\_blocks.h}) que representa 
+uma unidade básica de síntese. A Figura \ref{fig:uml1} mostra o diagrama 
+de classes correspondente.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{Classes.png}\caption{Diagrama UML dos blocos básicos de síntese}\label{fig:uml1}
+\end{figure}
+
+Todos os blocos de síntese herdam da classe \emph{BasicBlock} e sobrescrevem 
+o método \emph{getNextValue}, que é o responsável por obter a próxima 
+amostra de áudio do bloco. A classe \emph{BasicBlock} também fornece métodos 
+para ligar(\emph{getON} e \emph{setON}) e resetar (\emph{resetBlock}) a unidade.
+
+Naturalmente, a semântica de ``ligar'' e ``resetar'' o bloco varia de unidade para unidade. 
+Por exemplo, se desligarmos um \emph{Oscil} e chamarmos \emph{getNextValue}, a unidade 
+retornará $0$. Já no caso da classe \emph{Filter}, desligar o filtro significa que não 
+será feito processamento e o sinal será devolvido tal como recebido pelo filtro. 
+
+Finalmente, através do método \emph{setInput} é possível usar um outro \emph{BasicBlock} 
+como entrada para a unidade em questão. Por exemplo, a classe \emph{Oscil} recebe 
+dois \emph{BasicBlock} como entrada, um representando a frequência e o outro 
+a amplitude de oscilação.
+
+Nas subseções seguintes descreveremos alguns aspectos das classes derivadas de \emph{BasicBlock}.
+
+\subsection{\emph{Number}}
 A classe numero(Number) serve para obtermos um número como sinal amostrado, usamos para obtermos um sinal de valor fixo. Ela não recebe nenhum outro bloco básico. Essa classe tem um atributo com o valor do número e a função que obtêm a próxima amostra simplesmente retorna esse número.
-\subsection{Somador}
+\subsection{\emph{Adder}}
 Um somador(Adder) serve para podermos somar um número qualquer de sinais amostrados. Ao ser construída, deve-se passar o número de entradas, e ao usar deve indicar quais blocos básicos serão as entradas. Para obter a próxima amostra, são obtidas as próximas amostras de todos os blocos de entrada, somadas e esse valor é retornado.
-\subsection{Multiplicador}
+\subsection{\emph{Multiplier}}
 Um multiplicador(Multiplier) serve para podermos multiplicar um número qualquer de sinais amostrados. Funciona de forma análoga ao somador.
-\subsection{Multiplexador}
+\subsection{\emph{Multiplexer}}
 O multiplexador(Multiplexer) funciona como um seletor de uma das entradas. Ele também recebe um número arbitrário de blocos básicos ao ser construído, e também devem ser escolhidos quais são esses blocos. E tem uma função que escolhe qual bloco passará para a saída. A próxima amostra será a próxima amostra do bloco escolhido.
-\subsection{Oscilador}
-O oscilador(Oscilator) é um dos blocos mais importantes para esse sintetizador, ele que gera o sinal rico em harmonicos que será processado, manipulado e filtrado para obter o som sintetizado coom queremos.
+\subsection{\emph{Oscil}}
+O oscilador(Oscilator) é um dos blocos mais importantes para esse sintetizador, ele que gera o sinal rico em harmônicos que será processado, manipulado e filtrado para obter o som sintetizado coom queremos.
 Ele usa 2 blocos básicos que o controlam, a entrada de frequência e a entrada de amplitude, que são sinais que controlarão frequência e amplitude do oscilador. 
 Há ainda uma função que controla qual tipo de onda que o oscilador usará. Esses tipos de onda estão estruturados em uma classe chamada Waveforms com os tipos de onda implementados, que são: triangular, dente de serra, quadrada, reta larga e reta estreita, que são colocados numa tabela usada pelo oscilador. Por fim o oscilador faz o table lookup dessa tabela  com interpolação linear.
 A classe oscilador ainda faz sincronismos entre 2 osciladores. Se a opção pelo sincronismo estiver ativada um oscilador escravo é resetado no instante que o oscilador principal completa seu ciclo. Isso gera efeitos  bem interessantes que só sincronismo entre os osciladores proporcionam.
 
 \subsection{Gerador de ruído}
-O gerador de ruído (a classe Noise) não recebe nenhum bloco, ela gera 2 tipos de ruídos, o ruído brando e o ruído rosa.
+O gerador de ruído (a classe Noise) não recebe nenhum bloco, ela gera 2 tipos de ruídos, o ruído branco e o ruído rosa.
 o ruído branco é o ruído gerado por números aleatórios(nesse caso, as limitações da computação faz com que sejam números pseudo-aleatórios), que contém todas as bandas de frequência com a mesma intensidade.
 o ruído rosa é o ruído que tem todas as bandas de frequência, mas com intensidades proporcionais ao inverso da frequência, ou seja, para maiores frequências menos vai ser a intensidade dela. A implementação usada foi a de [2].
 \subsection{ADSR}
 A classe ADSR é um controlador de envoltórias de amplitudo e frequência, essa sigla representa o atack, decay, sustain e release, que são respectivamente o tempo de ataque, decaimento, sustentação e relaxamento de uma envoltória....
 \subsection{Filtro}
 
-O filtro eh uma implementacao digital dos filtros controlados por tensao(VCF)usados nos minimoogs, feito por Robert Moog. Esse filtro eh uma construcao em serie de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a frequencia de corte,alem de uma realimentacao invertida multiplicada por um fator de qualidade (k) que varia de 0 a 4.
-O comportamento dele eh dependente do k, para k=0 ele atua como um passa baixa, com o crescimento de k, aparece uma elevacao 
+O filtro é uma implementacao digital dos filtros controlados por tensao(VCF)usados nos minimoogs, feito por Robert Moog. Esse filtro é uma construção em série de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a frequencia de corte,alem de uma realimentacao invertida multiplicada por um fator de qualidade (k) que varia de 0 a 4.
+O comportamento dele é dependente do $k$, para $k=0$ ele atua como um passa baixa, com o crescimento de k, aparece uma elevacao 
 cada vez mais acentuada na funcao de transferencia no valor da frequencia de corte, e quando k chega a 4 o filtro passa a oscilar.
 Cada um dos 4 estagios do filtro pode ser representado pela funcao de transferencia
 
@@ -54,7 +90,7 @@ Cada um dos 4 estagios do filtro pode ser representado pela funcao de transferen
 G(s) = \frac{\omega_c}{\omega_c+s}  
 \end{equation}
 
-Onde $\omega_c$ eh a frequencia de corte em radianos, e s eh a variavel da transformada de laplace.
+Onde $\omega_c$ é a frequencia de corte em radianos, e $s$ é a variavel da Transformada de Laplace.
 Ao serializar 4 esses filtros e introduzir uma realimentacao com o fator -k, a funcao de transferencia fica
 
 \begin{equation}\label{eq:(2)}
@@ -71,8 +107,8 @@ G(z) = b_0 \frac{1+z^{-1}}{1+a_1 z^{-1}}
 \end{equation}
 
 
-Onde $b_0 = \frac{T \tilde{\omega_c}}{T \tilde{\omega_c}+2}$ e $a_1 = \frac{T \tilde{\omega_c} -2}{T\tilde{\omega_c} +2}$, onde $T$ eh o periodo de amostragem.
-Pela definicao de transformacao bilinear a pulsacao antitransformada $\tilde{\omega_c}$ do filtro digital eh
+Onde $b_0 = \frac{T \tilde{\omega_c}}{T \tilde{\omega_c}+2}$ e $a_1 = \frac{T \tilde{\omega_c} -2}{T\tilde{\omega_c} +2}$, onde $T$ é o período de amostragem.
+Pela definicao de transformacao bilinear a pulsacao antitransformada $\tilde{\omega_c}$ do filtro digital é
 
 \begin{equation}\label{eq:(4)}
 \tilde{\omega_c} = b_0 \frac{2}{T} \tan({\frac{T \omega_c}{2}} ) 
@@ -86,18 +122,23 @@ Fazendo $G(z) = \frac{Y(z)}{X(z)}$, e igualando a (3) e isolando Y(z), obtemos
 Y(z) = b_0(X(z)+X(z)z^{-1})-a_1Y(z)z^{-1}
 \end{equation}
 
-Usando a transformada inversa z:
+Usando a transformada inversa $z$:
 
 \begin{equation}\label{eq:(6)}
 y(n)=b_0(x(n)+x(n-1))-a_1 y(n-1)  
 \end{equation}
 
 
-Esse eh o nosso G(z), serializando 4 desses e acrescentando a realimentacao, o filtro fica implementado.
+Esse é o nosso G(z), serializando 4 desses e acrescentando a realimentacao, o filtro fica implementado.
 
 Em C++, foi feita a classe Filter, no arquivo Filter.cpp, que deriva da classe BasicBlock. Um objeto da classe Filter e criado com 3 BasicBlocks como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequencia de corte do filtro e o fator de qualidade. Como o proximo valor da saida do filtro depende das entradas e saidas anteriores de cada um dos estagios, foi nescessario criar os atributos para guardar os valores anteriores e atualiza-los a cada solicitacao de novo valor para saida.
 
 
+\section{VST}
+O SDK para gerar plugins VST é distribuído pela Steinberg, e portanto, deve 
+ser conseguido diretamente com a empresa. Nesta seção, temos como objetivo 
+descrever como foi feito interfaceamento entre o arcabouço que foi montado 
+para a síntese de áudio
 \bibliographystyle{IEEEtran}
 \bibliography{bibliografia}
 \end{document}
