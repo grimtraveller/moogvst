@@ -17,13 +17,33 @@
 O Objetivo desse trabalho e fazer uma implementacao digital de um minimoog em forma de plugin VSTi.
 o Minimoog e um sintetizador que usa sintese subtrativa pra gerar seus sons...
 
-çé
+
 \section{Blocos Basicos}
 
-Para construir a arquitetura de um minimoog, precisaremos de diversos blocos. Entre eles precisamos de somadores, que somam as entradas; multiplicadores, que multiplicam as entradas; multiplexadores, que escolhe uma das entradas; numeros 
+Para construir a arquitetura de um minimoog, precisaremos de diversos blocos básicos para passar os dados da forma como queremos, e poder organizar a arquitetura.
+Eles são números, somadores, multiplicadores, multiplexadores, osciladores, geradores de ruído, ADSR e o filtro.
+Todos esses derivam de uma classe chamada BacisBlocks, ela pode receber de entrada na construção um número qualquer de blocos como entrada e com funções para setar ligado ou desligado e identificar isso, resetar o bloco, e obter a próximo amostra do bloco, essas funções serão implementadas nas classes que herdarão a BasicBlock.
+\subsection{Numero}
+A classe numero(Number) serve para obtermos um número como sinal amostrado, usamos para obtermos um sinal de valor fixo. Ela não recebe nenhum outro bloco básico. Essa classe tem um atributo com o valor do número e a função que obtêm a próxima amostra simplesmente retorna esse número.
+\subsection{Somador}
+Um somador(Adder) serve para podermos somar um número qualquer de sinais amostrados. Ao ser construída, deve-se passar o número de entradas, e ao usar deve indicar quais blocos básicos serão as entradas. Para obter a próxima amostra, são obtidas as próximas amostras de todos os blocos de entrada, somadas e esse valor é retornado.
+\subsection{Multiplicador}
+Um multiplicador(Multiplier) serve para podermos multiplicar um número qualquer de sinais amostrados. Funciona de forma análoga ao somador.
+\subsection{Multiplexador}
+O multiplexador(Multiplexer) funciona como um seletor de uma das entradas. Ele também recebe um número arbitrário de blocos básicos ao ser construído, e também devem ser escolhidos quais são esses blocos. E tem uma função que escolhe qual bloco passará para a saída. A próxima amostra será a próxima amostra do bloco escolhido.
+\subsection{Oscilador}
+O oscilador(Oscilator) é um dos blocos mais importantes para esse sintetizador, ele que gera o sinal rico em harmonicos que será processado, manipulado e filtrado para obter o som sintetizado coom queremos.
+Ele usa 2 blocos básicos que o controlam, a entrada de frequência e a entrada de amplitude, que são sinais que controlarão frequência e amplitude do oscilador. 
+Há ainda uma função que controla qual tipo de onda que o oscilador usará. Esses tipos de onda estão estruturados em uma classe chamada Waveforms com os tipos de onda implementados, que são: triangular, dente de serra, quadrada, reta larga e reta estreita, que são colocados numa tabela usada pelo oscilador. Por fim o oscilador faz o table lookup dessa tabela  com interpolação linear.
+A classe oscilador ainda faz sincronismos entre 2 osciladores. Se a opção pelo sincronismo estiver ativada um oscilador escravo é resetado no instante que o oscilador principal completa seu ciclo. Isso gera efeitos  bem interessantes que só sincronismo entre os osciladores proporcionam.
 
-
-\section{Filtro}
+\subsection{Gerador de ruído}
+O gerador de ruído (a classe Noise) não recebe nenhum bloco, ela gera 2 tipos de ruídos, o ruído brando e o ruído rosa.
+o ruído branco é o ruído gerado por números aleatórios(nesse caso, as limitações da computação faz com que sejam números pseudo-aleatórios), que contém todas as bandas de frequência com a mesma intensidade.
+o ruído rosa é o ruído que tem todas as bandas de frequência, mas com intensidades proporcionais ao inverso da frequência, ou seja, para maiores frequências menos vai ser a intensidade dela. A implementação usada foi a de [2].
+\subsection{ADSR}
+A classe ADSR é um controlador de envoltórias de amplitudo e frequência, essa sigla representa o atack, decay, sustain e release, que são respectivamente o tempo de ataque, decaimento, sustentação e relaxamento de uma envoltória....
+\subsection{Filtro}
 
 O filtro eh uma implementacao digital dos filtros controlados por tensao(VCF)usados nos minimoogs, feito por Robert Moog. Esse filtro eh uma construcao em serie de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a frequencia de corte,alem de uma realimentacao invertida multiplicada por um fator de qualidade (k) que varia de 0 a 4.
 O comportamento dele eh dependente do k, para k=0 ele atua como um passa baixa, com o crescimento de k, aparece uma elevacao 
