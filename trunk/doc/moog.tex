@@ -24,7 +24,9 @@ duas pastas na estrutura de diretórios do projeto:
 
 \begin{itemize}
 	\item \emph{src} - Contém as classes responsáveis por efetuar 
-	a síntese de áudio propriamente dita. Além disso contém um diretório 
+	a síntese de áudio propriamente dita. Foram implementadas diversas 
+	unidades básicas. A classe \emph{Moog} conecta essas unidades básicas para 
+	emular a estrutura do Minimoog. Esta pasta também contém um diretório 
 	de testes (\emph{Tests}) para os blocos de síntese construídos.
 	\item \emph{plugin} - Contém as classes responsáveis por fazer a 
 	interface entre a síntese de áudio e a API VST.
@@ -133,6 +135,7 @@ Esse é o nosso G(z), serializando 4 desses e acrescentando a realimentacao, o f
 
 Em C++, foi feita a classe Filter, no arquivo Filter.cpp, que deriva da classe BasicBlock. Um objeto da classe Filter e criado com 3 BasicBlocks como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequencia de corte do filtro e o fator de qualidade. Como o proximo valor da saida do filtro depende das entradas e saidas anteriores de cada um dos estagios, foi nescessario criar os atributos para guardar os valores anteriores e atualiza-los a cada solicitacao de novo valor para saida.
 
+\section{A classe \emph{Moog}}
 
 \section{VST}
 O SDK para gerar plugins VST é distribuído pela Steinberg, e portanto, deve 
