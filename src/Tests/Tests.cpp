@@ -84,10 +84,12 @@ int main(void) {
 	filter.setFrequencyInput(&freq2);
 	filter.setQualityInput(&quality);
 	adsr.resetBlock();
-	filter.setInputSignal(&oscil);
+	filter.setInputSignal(&noise);
+	quality.setNumber(1.0);
 
 	for (int i = 0; i < 44100 * 2; i++) {
 		samples[i] = filter.getNextValue() * 30000;
+		quality.setNumber(i/22100+0.5);
 	}
 	write_wave("filter_test1.wav", 44100, samples, 2.0);
 
