@@ -45,6 +45,9 @@ de classes correspondente.
 \includegraphics[scale=0.4]{Classes.png}\caption{Diagrama UML dos blocos básicos de síntese}\label{fig:uml1}
 \end{figure}
 
+
+Para construir a arquitetura de um minimoog, precisaremos de diversos blocos básicos para passar os dados da forma como queremos,
+ e poder organizar a arquitetura.
 Todos os blocos de síntese herdam da classe \emph{BasicBlock} e sobrescrevem 
 o método \emph{getNextValue}, que é o responsável por obter a próxima 
 amostra de áudio do bloco. A classe \emph{BasicBlock} também fornece métodos 
@@ -60,50 +63,99 @@ como entrada para a unidade em questão. Por exemplo, a classe \emph{Oscil} rece
 dois \emph{BasicBlock} como entrada, um representando a frequência e o outro 
 a amplitude de oscilação.
 
+Todos os blocos estão definidos no arquivo \emph{basic\_blocks.h} e implementados nos arquivos \emph{nomedaclasse.cpp}.
+
 Nas subseções seguintes descreveremos alguns aspectos das classes derivadas de \emph{BasicBlock}.
 
 \subsection{\emph{Number}}
-A classe numero(Number) serve para obtermos um número como sinal amostrado, usamos para obtermos um sinal de valor fixo. Ela não recebe nenhum outro bloco básico. Essa classe tem um atributo com o valor do número e a função que obtêm a próxima amostra simplesmente retorna esse número.
+A classe \emph{Number} serve para obtermos um número como sinal amostrado, usamos para obtermos um sinal de valor fixo. 
+Ela não recebe nenhum outro bloco básico, é construida apenas com o valor do número. Essa classe tem um atributo com o valor do número 
+e o método \emph{getNextValue} retorna esse número.
 \subsection{\emph{Adder}}
-Um somador(Adder) serve para podermos somar um número qualquer de sinais amostrados. Ao ser construída, deve-se passar o número de entradas, e ao usar deve indicar quais blocos básicos serão as entradas. Para obter a próxima amostra, são obtidas as próximas amostras de todos os blocos de entrada, somadas e esse valor é retornado.
+A classe \emph{Adder} serve para podermos somar um número qualquer de sinais amostrados. Ao ser construída, deve-se passar o número de entradas,
+ e ao usar deve-se indicar quais blocos básicos serão as entradas. Para obter a próxima amostra, o método \emph{getNextValue} obtém as próximas amostras de 
+todos os blocos de entrada, via \emph{getNextValue} dos blocos básicos de entrada, e esses valores são somados e esse valor é retornado.
 \subsection{\emph{Multiplier}}
-Um multiplicador(Multiplier) serve para podermos multiplicar um número qualquer de sinais amostrados. Funciona de forma análoga ao somador.
+A classe \emph{Multiplier} serve para podermos multiplicar um número qualquer de sinais amostrados. Funciona de forma análoga ao \emph{Adder}, mas a operação e de multiplicar.
 \subsection{\emph{Multiplexer}}
-O multiplexador(Multiplexer) funciona como um seletor de uma das entradas. Ele também recebe um número arbitrário de blocos básicos ao ser construído, e também devem ser escolhidos quais são esses blocos. E tem uma função que escolhe qual bloco passará para a saída. A próxima amostra será a próxima amostra do bloco escolhido.
+O multiplexador, implementado na classe \emph{Multiplexer} funciona como um seletor de uma das entradas. Ele também recebe um número arbitrário de blocos 
+básicos ao ser construído, e também devem ser escolhidos quais são esses blocos. O método setSelectedInput escolhe qual bloco passará para a saída, 
+a partir de um parametro inteiro. O retorno do método \emph{getNextValue} será a próxima amostra do bloco escolhido obtida pelo método \emph{getNextValue} do bloco escolhido.
 \subsection{\emph{Oscil}}
-O oscilador(Oscilator) é um dos blocos mais importantes para esse sintetizador, ele que gera o sinal rico em harmônicos que será processado, manipulado e filtrado para obter o som sintetizado coom queremos.
-Ele usa 2 blocos básicos que o controlam, a entrada de frequência e a entrada de amplitude, que são sinais que controlarão frequência e amplitude do oscilador. 
-Há ainda uma função que controla qual tipo de onda que o oscilador usará. Esses tipos de onda estão estruturados em uma classe chamada Waveforms com os tipos de onda implementados, que são: triangular, dente de serra, quadrada, reta larga e reta estreita, que são colocados numa tabela usada pelo oscilador. Por fim o oscilador faz o table lookup dessa tabela  com interpolação linear.
-A classe oscilador ainda faz sincronismos entre 2 osciladores. Se a opção pelo sincronismo estiver ativada um oscilador escravo é resetado no instante que o oscilador principal completa seu ciclo. Isso gera efeitos  bem interessantes que só sincronismo entre os osciladores proporcionam.
+O bloco oscilador implementado pela classe \emph{Oscil}, é um dos blocos mais importantes para esse sintetizador, ele que gera o sinal rico em harmonicos que
+ será processado, manipulado e filtrado para obter o som sintetizado como queremos.
+Ele usa 2 blocos básicos que o controlam, a entrada de frequência e a entrada de amplitude, que são sinais que controlarão frequência e amplitude do oscilador, que são
+selecionados a partir dos métodos \emph{setFrequencyInput} e \emph{setAmplitudeInput}. 
 
-\subsection{Gerador de ruído}
-O gerador de ruído (a classe Noise) não recebe nenhum bloco, ela gera 2 tipos de ruídos, o ruído branco e o ruído rosa.
-o ruído branco é o ruído gerado por números aleatórios(nesse caso, as limitações da computação faz com que sejam números pseudo-aleatórios), que contém todas as bandas de frequência com a mesma intensidade.
-o ruído rosa é o ruído que tem todas as bandas de frequência, mas com intensidades proporcionais ao inverso da frequência, ou seja, para maiores frequências menos vai ser a intensidade dela. A implementação usada foi a de [2].
-\subsection{ADSR}
-A classe ADSR é um controlador de envoltórias de amplitudo e frequência, essa sigla representa o atack, decay, sustain e release, que são respectivamente o tempo de ataque, decaimento, sustentação e relaxamento de uma envoltória....
-\subsection{Filtro}
 
-O filtro é uma implementacao digital dos filtros controlados por tensao(VCF)usados nos minimoogs, feito por Robert Moog. Esse filtro é uma construção em série de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a frequencia de corte,alem de uma realimentacao invertida multiplicada por um fator de qualidade (k) que varia de 0 a 4.
-O comportamento dele é dependente do $k$, para $k=0$ ele atua como um passa baixa, com o crescimento de k, aparece uma elevacao 
-cada vez mais acentuada na funcao de transferencia no valor da frequencia de corte, e quando k chega a 4 o filtro passa a oscilar.
-Cada um dos 4 estagios do filtro pode ser representado pela funcao de transferencia
+O método \emph{setWavetable} controla qual tipo de onda que o oscilador usará. Esses tipos de onda estão estruturados em uma classe chamada \emph{Waveform}, implementada no
+arquivo \emph{Waveform.cpp} com os tipos de onda implementados, que são: triangular, dente de serra, quadrada, reta larga e reta estreita, que são colocados numa 
+tabela usada pelo oscilador. O método \emph{getNextValue} da classe \emph{Oscil} faz o table lookup da Wavetable escolhida, de acordo com a frequência de entrada e
+e usando interpolação linear para indices não inteiros, além de multiplicar pelo o valor de amplitude passado como entrada.
+
+
+A classe \emph{Oscil} ainda faz sincronismos entre 2 osciladores. Se o atributo \emph{syncON} estiver com o valor TRUE, o que é feito pelo método
+\emph{setSyncON}, e se um outro \emph{Oscil} foi escolhido como um oscilador escravo pelo método \emph{setSlave}, entao esse oscilador escravo é resetado 
+no instante que o oscilador principal completa seu ciclo. Isso gera efeitos  bem interessantes que só sincronismo entre os osciladores proporcionam.
+
+\subsection{\emph{Noise}}
+O gerador de ruído implementado pela classe \emph{Noise} gera 2 tipos de ruídos, o ruído branco e o ruído rosa além de ter um bloco de entrada que controla a amplitude.
+O ruído branco é o ruído gerado por números aleatórios(nesse caso, as limitações da computação faz com que sejam números pseudo-aleatórios),
+ que contém todas as bandas de frequência com a mesma intensidade.
+O ruído rosa é o ruído que tem todas as bandas de frequência, mas com intensidades proporcionais ao inverso da frequência, ou seja, para maiores
+ frequências menos vai ser a intensidade dela. A implementação usada foi usando uma filtragem do ruído branco e está disponível em \url{http://www.firstpr.com.au/dsp/pink-noise/}.
+O tipo de ruído pode ser selecionado através do método \emph{setType}, o bloco que controla a amplitude é selecionado pelo método \emph{setAmplitudeInput}
+e o método \emph{getNextValue} retorna a uma amostra do ruído selecionado, multiplicado pelo bloco que controla a amplitude.
+
+\subsection{\emph{ADSR}}
+O ADSR é um controlador de envoltórias de amplitude e frequência, essa sigla representa o atack, decay, sustain e release, que são 
+respectivamente o tempo de ataque, decaimento, o nível de sustentação e tempo de relaxamento de uma envoltória, onde ainda podemos 
+escolher a declividade do atack, decay e do release além do valor do sustain.
+
+
+
+Na classe \emph{ADSR} temos métodos para selecionar todos esses valores, temos os métodos \emph{attack\_function}, \emph{decay\_function}
+ e \emph{release\_function}, que fazem o cálculo da curva de attack, decay e release simulando o circuito elétrico analógico. Ou seja, a curva da figura \ref{fig:ADSR}.
+
+
+
+O método \emph{getNextValue} faz o cálcula qual o estágio corrente de acordo com os valores de attack, decay, sustain e release, e dependendo de 
+qual estágio está, se chama o método correspondente, a menos no sustain, onde retorna o nível de sustain.
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{ADSR.png}\caption{Curva de attack, decay, sustain e release.}\label{fig:ADSR}
+\end{figure}
+
+\subsection{\emph{Filter}}
+
+
+O filtro é uma implementacao digital dos filtros controlados por tensao \emph{VCF} usados nos minimoogs, feito por Robert Moog. 
+\subsubsection{Fundamentação teorica}
+Esse filtro
+ é uma construção em série de 4 filtros passa baixa implementados com circuitos RC, com resistencia variavel por tensao, podendo assim controlar a
+ frequência de corte, além de uma realimentacao invertida multiplicada por um fator de qualidade ($k$) que varia de 0 a 4.
+O comportamento dele é dependente do $k$, para $k=0$ ele atua como um passa baixa, com o crescimento de $k$, aparece uma elevacao 
+cada vez mais acentuada na função de transferencia no valor da frequência de corte, e quando $k$ chega a 4 o filtro passa a oscilar.
+Cada um dos 4 estagios do filtro pode ser representado pela função de transferencia
 
 \begin{equation}\label{eq:(1)}
 G(s) = \frac{\omega_c}{\omega_c+s}  
 \end{equation}
 
-Onde $\omega_c$ é a frequencia de corte em radianos, e $s$ é a variavel da Transformada de Laplace.
-Ao serializar 4 esses filtros e introduzir uma realimentacao com o fator -k, a funcao de transferencia fica
+Onde $\omega_c$ é a frequência de corte em radianos, e $s$ é a variável da Transformada de Laplace.
+Ao serializar 4 esses filtros e introduzir uma realimentacao com o fator $-k$, a função de transferência fica
 
 \begin{equation}\label{eq:(2)}
  H(s) = \frac{G(s)^4}{1+k G(s)^4} 
 \end{equation}
 
+\subsubsection{Discretização do filtro}
 
-Para discretizar o filtro, usamos uma transformacao bilinear para obtermos uma G(z) a partir da G(s), 
-com uma simples nova estimativa do valor $\omega_c$, chamaremos essa estimativa de $\omega_c$~.
-substituindo s por $(\frac{2}{T})(\frac{z-1}{z+1})$ em (1), obtemos:
+Para discretizar o filtro, usamos uma transformação bilinear para obtermos uma G(z) a partir da G(s), 
+com uma nova estimativa do valor $\omega_c$, chamaremos essa estimativa de $\omega_c$~.
+substituindo s por $(\frac{2}{T})(\frac{z-1}{z+1})$ em \ref{eq:(1)}, obtemos:
 
 \begin{equation}\label{eq:(3)}
 G(z) = b_0 \frac{1+z^{-1}}{1+a_1 z^{-1}}  
@@ -111,14 +163,18 @@ G(z) = b_0 \frac{1+z^{-1}}{1+a_1 z^{-1}}
 
 
 Onde $b_0 = \frac{T \tilde{\omega_c}}{T \tilde{\omega_c}+2}$ e $a_1 = \frac{T \tilde{\omega_c} -2}{T\tilde{\omega_c} +2}$, onde $T$ é o período de amostragem.
-Pela definicao de transformacao bilinear a pulsacao antitransformada $\tilde{\omega_c}$ do filtro digital é
+Pela definicao de transformacao bilinear, a pulsacao antitransformada $\tilde{\omega_c}$ do filtro digital é
 
 \begin{equation}\label{eq:(4)}
 \tilde{\omega_c} = b_0 \frac{2}{T} \tan({\frac{T \omega_c}{2}} ) 
 \end{equation}
 
-Bem com isso temos apenas a funcao de transferência de um estágio do filtro, mas precisamos da implementação digital dele.
-Fazendo $G(z) = \frac{Y(z)}{X(z)}$, e igualando a (3) e isolando Y(z), obtemos
+Com isso temos a função de transferência de um estágio do filtro.
+
+\subsubsection{Implementação digital do circuito}
+
+Temos apenas a função de transferência, mas precisamos saber como obter o circuito que simula essa função de transferência.
+Uma forma de obter o circuito é fazendo $G(z) = \frac{Y(z)}{X(z)}$, e igualando a \ref{eq:(3)} e isolando $Y(z)$, com isso obtemos
 
 
 \begin{equation}\label{eq:(5)}
@@ -132,16 +188,31 @@ y(n)=b_0(x(n)+x(n-1))-a_1 y(n-1)
 \end{equation}
 
 
-Esse é o nosso G(z), serializando 4 desses e acrescentando a realimentacao, o filtro fica implementado.
+Esse é o nosso $G(z)$, serializando 4 desses e acrescentando a realimentação, encontramos o circuito de que se obtém o filtro.
 
-Em C++, foi feita a classe Filter, no arquivo Filter.cpp, que deriva da classe BasicBlock. Um objeto da classe Filter e criado com 3 BasicBlocks como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequencia de corte do filtro e o fator de qualidade. Como o proximo valor da saida do filtro depende das entradas e saidas anteriores de cada um dos estagios, foi nescessario criar os atributos para guardar os valores anteriores e atualiza-los a cada solicitacao de novo valor para saida.
+
+\subsubsection{A classe Filter}
+Um objeto da classe Filter é criado com 
+3 clocos básicos como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequência de corte do filtro e o fator de qualidade, através dos
+métodos \emph{setInputSignal}, \emph{setFrequencyInput} e \emph{setQualityInput}.
+Como o próximo valor da saida do filtro depende das entradas e saídas anteriores de cada um dos estágios, foi nescessário criar os atributos
+ para guardar os valores anteriores de entrada e saída de cada estágio. Eles são \emph{x\_1}[] e \emph{y\_1}[]. 
+
+
+O método \emph{getNextValue} obtém $b0$ e $a1$ a partir dos valores dos blocos de entrada, faz a realimentação de acordo com o fator de qualidade, 
+ faz o cálculo do valor de saída de cada estágio, segundo a equação \ref{eq:(6)}, atualiza os atributos \emph{x\_1}[] e \emph{y\_1}[] para terem o valor correto
+ na próxima chamada do método \emph{getNextValue} e retorna o valor de saída do último estágio.
 
 \section{A classe \emph{Moog}}
+
+
 
 \section{VST}
 Nesta seção, temos como objetivo 
 descrever como foi feito interfaceamento entre o arcabouço que foi montado 
 para a síntese de áudio e a API VST.
+
+
 
 Com objetivo de facilitar as questões de compilação e geração de \emph{dll}s 
 utilizou-se o Visual Studio para gerenciar o projeto. Instruções para configurar 
