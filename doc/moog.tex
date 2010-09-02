@@ -17,11 +17,16 @@
 \maketitle
 
 \section{Introdução}
+
+
 O objetivo desse trabalho foi fazer uma implementação digital de um Minimoog em forma de \emph{plugin} VSTi.
 
 
 
 \section{Arquitetura Geral do Sistema}
+
+
+
 A implementação do Minimoog foi divida em duas partes, que correspondem às 
 duas pastas na estrutura de diretórios do projeto:
 
@@ -105,10 +110,17 @@ no instante que o oscilador principal completa seu ciclo. Isso gera efeitos  bem
 
 \subsection{\emph{Noise}}
 O gerador de ruído implementado pela classe \emph{Noise} gera 2 tipos de ruídos, o ruído branco e o ruído rosa além de ter um bloco de entrada que controla a amplitude.
+
+
 O ruído branco é o ruído gerado por números aleatórios(nesse caso, as limitações da computação faz com que sejam números pseudo-aleatórios),
  que contém todas as bandas de frequência com a mesma intensidade.
+
+
+
 O ruído rosa é o ruído que tem todas as bandas de frequência, mas com intensidades proporcionais ao inverso da frequência, ou seja, para maiores
  frequências menos vai ser a intensidade dela. A implementação usada foi usando uma filtragem do ruído branco e está disponível em \url{http://www.firstpr.com.au/dsp/pink-noise/}.
+
+
 O tipo de ruído pode ser selecionado através do método \emph{setType}, o bloco que controla a amplitude é selecionado pelo método \emph{setAmplitudeInput}
 e o método \emph{getNextValue} retorna a uma amostra do ruído selecionado, multiplicado pelo bloco que controla a amplitude.
 
@@ -212,8 +224,8 @@ O método \emph{getNextValue} obtém $b0$ e $a1$ a partir dos valores dos blocos
 \subsubsection{Resultados}
 
 
-Usando a classe \emph{Filter} conseguimos os seguintes resultados de uma análise de frequência em amostras de 2 segundos usando ruído branco como entrada do filtro a uma frequência
- de corte $880 hz$.
+Usando a classe \emph{Filter} conseguimos os seguintes resultados de uma análise de frequência em amostras de 2 segundos usando ruído branco como entrada do filtro
+ a uma frequência  de corte $880 hz$. Os gráficos foram feitos com a ferramenta \emph{Espectro de frequência} do programa \emph{Audacity}.
 
 \begin{figure}
   \centering
@@ -236,7 +248,12 @@ Usando a classe \emph{Filter} conseguimos os seguintes resultados de uma anális
   \label{fig:qs}
 \end{figure}
 
-Dá pra ver que a medida que o fator de qualidade aumenta...
+
+
+De acordo com a figura \ref{fig:qs}, pode-se verificar que a medida que o fator de qualidade aumenta, o espectro de frequência na tem um
+ máximo cada vez mais acentuado por volta da frequência de corte, tornando o filtro de um passa baixa para um passa baixa com acentuação na 
+banda da frequência de corte.
+
 
 
 \begin{figure}
@@ -252,16 +269,20 @@ Dá pra ver que a medida que o fator de qualidade aumenta...
       }%
 
   \caption{Análise de frequência para q=3.56 e para 3.57}
-  \label{fig:qs}
+  \label{fig:qs2}
 \end{figure}
 
 
+A figura \ref{fig:qs2} mostra a situação onde o filtro começa a oscilar sozinho. Para o fator de qualidade igual a $3.56$, a resposta de frequência
+do filtro tem a forma igual ao que se tinha, só que com a acentuação na frequência de corte. Com o fotaro de qualidade igual a $3.57$ o comportamento 
+do espectro de frequência  do filtro ja é bem diferente. A acentuação em torno da frequência de corte se torna muito maior. 
 
 
-\begin{figure}
-\centering
-\includegraphics[scale=0.1]{q4.png}\caption{Filtro com q=4.0}\label{fig:q=4.0}
-\end{figure}
+Os resultados em arquivos de
+áudio sempre deram clip após certo tempo com valores de fator de qualidade acima desse patamar, mesmo quando se desliga o sinal de entrada do filtro.
+ O filtro perde a característica \emph{FIR}, resposta finita ao impulso, e adquire a característica de um \emph{IIR}, com resposta infinita ao impulso.
+
+
 
 \section{A classe \emph{Moog}}
 A classe \emph{Moog}, implementada nos arquivos \emph{Moog.cpp} e \emph{Moog.h}, é uma classe que monta toda a arquitetura do minimoog usando os blocos que foram definidos.
@@ -274,20 +295,20 @@ envoltória de amplitude \emph{env} e outro pra controle da envoltória de frequ
 
 \subsection{Conexão dos blocos}
 Com todos esses blocos criados, a classe Moog conecta a fim de formar a arquitetura do minimoog. Ao criar um objeto da classe Moog, ele inicializa 
-o cada um dos blocos com valores padão e conecta os blocos.
+cada um dos blocos com valores padão e conecta os blocos.
 
 
 
 Para os osciladores e o gerador de ruído, o construtor da classe Moog seleciona os números que controlam a frequência e amplitude como as entradas dos
-2 osciladores \emph{oscil1} e \emph{oscil2}, e seleciona \emph{oscil2} como escravo do primeiro. Seleciona o número que controla a amplitude do gerador de 
+2 osciladores \emph{oscil1} e \emph{oscil2}, e seleciona \emph{oscil2} como escravo de \emph{oscil1}. Seleciona o número que controla a amplitude do gerador de 
 ruído \emph{noise}. Seleciona \emph{oscil1}, \emph{oscil2} e \emph{noise} como as 3 entradas do somador \emph{adder}. 
 
 
 
 Para o filtro, a classe Moog usa o multiplicador \emph{mult\_aux} para multiplicar o número que controla o contorno do filtro, com a envoltória de 
-frequência \emph{env\_freq} e a frequência de corte, a saída desse multiplicador é somada a frequência de corte com o somador \emph{adder\_aux},
-para o filtro \emph{filter} é selecionado como sinal de entrada a saída do somador dos osciladores e ruído \emph{adder}, selecionado como frequência 
-de corte o segundo somador \emph{adder\_aux} e como fator de qualidade o número que controla o fator de qualidade. Por último, é usado o multiplicador 
+frequência \emph{env\_freq} e a frequência de corte, a saída desse multiplicador é somada a frequência de corte com o somador \emph{adder\_aux}.
+Para o filtro \emph{filter} é selecionado como sinal de entrada a saída do somador dos osciladores e ruído \emph{adder}, selecionado como frequência 
+de corte o segundo somador \emph{adder\_aux} e como fator de qualidade, o número que controla o fator de qualidade. Por último, é usado o multiplicador 
 \emph{mult\_aux2} para multiplicar a saída de \emph{filter} com o ADSR \emph{env} e com o controlador de amplitude geral \emph{master\_amp}. 
 
   
@@ -306,6 +327,10 @@ relaxamento e o nível de sustentação da envoltória de amplitude.
 Então com o uso dos métodos da classe Moog é possivel controlar todos os parâmetros do minimoog.
 
 
+
+A classe Moog é apenas uma forma de conectar e controlar os blocos básicos de acordo com a arquitetura do Minimoog, 
+então se torna possível formar qualquer tipo de arquitetura 
+ de áudio que use os mesmos blocos básicos definidos.
 
 
 
@@ -351,6 +376,8 @@ métodos importantes:
 Todo plugin VST deve prover uma implementação da função \emph{createEffectInstance} e isso 
 é feito também no arquivo \emph{MoogPlugin.cpp}. No caso deste projeto, a única coisa 
 que é feita nesse método é criar uma objeto da classe \emph{MoogPlugin}. 
+
+
 \bibliographystyle{IEEEtran}
 \bibliography{bibliografia}
 \end{document}
