@@ -8,6 +8,8 @@
 \usepackage{booktabs}
 \usepackage{geometry}
 \usepackage{graphicx}
+\usepackage{subfig}
+
 \title{Implementação digital de um Minimoog}
 \author{Bruno Figueira Lourenço \\ Jonathan Alis Salgado Lima}
 
@@ -34,16 +36,19 @@ duas pastas na estrutura de diretórios do projeto:
 \end{itemize}
 
 \section{Síntese de Áudio}
-Para implementar o Moog, optou-se por dividir em diversos blocos básicos, 
-que representam cada um dos blocos que compõem o instrumento. Para isso, 
-criou-se a classe \emph{BasicBlock} (\emph{basic\_blocks.h}) que representa 
-uma unidade básica de síntese. A Figura \ref{fig:uml1} mostra o diagrama 
-de classes correspondente.
+
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{Classes.png}\caption{Diagrama UML dos blocos básicos de síntese}\label{fig:uml1}
 \end{figure}
+
+
+Para implementar o Moog, optou-se por dividir em diversos blocos básicos, 
+que representam cada um dos blocos que compõem o instrumento. Para isso, 
+criou-se a classe \emph{BasicBlock} (\emph{basic\_blocks.h}) que representa 
+uma unidade básica de síntese. A Figura \ref{fig:uml1} mostra o diagrama 
+de classes correspondente.
 
 
 Para construir a arquitetura de um minimoog, precisaremos de diversos blocos básicos para passar os dados da forma como queremos,
@@ -193,17 +198,105 @@ Esse é o nosso $G(z)$, serializando 4 desses e acrescentando a realimentação,
 
 \subsubsection{A classe Filter}
 Um objeto da classe Filter é criado com 
-3 clocos básicos como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequência de corte do filtro e o fator de qualidade, através dos
+3 blocos básicos como entrada, sendo que o primeiro e o sinal que vai ser filtrado, a frequência de corte do filtro e o fator de qualidade, através dos
 métodos \emph{setInputSignal}, \emph{setFrequencyInput} e \emph{setQualityInput}.
 Como o próximo valor da saida do filtro depende das entradas e saídas anteriores de cada um dos estágios, foi nescessário criar os atributos
- para guardar os valores anteriores de entrada e saída de cada estágio. Eles são \emph{x\_1}[] e \emph{y\_1}[]. 
+ para guardar os valores anteriores de entrada e saída de cada estágio. Eles são \emph{x\_1}[4] e \emph{y\_1}[4]. 
 
 
 O método \emph{getNextValue} obtém $b0$ e $a1$ a partir dos valores dos blocos de entrada, faz a realimentação de acordo com o fator de qualidade, 
- faz o cálculo do valor de saída de cada estágio, segundo a equação \ref{eq:(6)}, atualiza os atributos \emph{x\_1}[] e \emph{y\_1}[] para terem o valor correto
+ faz o cálculo do valor de saída de cada estágio, segundo a equação \ref{eq:(6)}, atualiza os atributos \emph{x\_1}[4] e \emph{y\_1}[4] para terem o valor correto
  na próxima chamada do método \emph{getNextValue} e retorna o valor de saída do último estágio.
 
+\subsubsection{Resultados}
+
+
+Usando a classe \emph{Filter} conseguimos os seguintes resultados de uma análise de frequência em amostras de 2 segundos usando ruído branco como entrada do filtro a uma frequência
+ de corte $880 hz$.
+
+\begin{figure}
+  \centering
+\parbox{1.5in}{
+    \centering
+    \includegraphics[scale=0.3]{q0.png}
+    }%
+\qquad	  
+\parbox{1.5in}{
+      \centering
+      \includegraphics[scale=0.3]{q15.png}
+      }%
+\qquad
+\parbox{1.5in}{
+      \centering
+      \includegraphics[scale=0.3]{q3.png}
+      }%
+
+  \caption{Análise de frequência para q=0.0, 1.5 e 3.0}
+  \label{fig:qs}
+\end{figure}
+
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.1]{q356.png}\caption{Filtro com q=3.56}\label{fig:q=3.56}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.1]{q357.png}\caption{Filtro com q=3.57}\label{fig:q=3.57}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.1]{q4.png}\caption{Filtro com q=4.0}\label{fig:q=4.0}
+\end{figure}
+
 \section{A classe \emph{Moog}}
+A classe \emph{Moog}, implementada nos arquivos \emph{Moog.cpp} e \emph{Moog.h}, é uma classe que monta toda a arquitetura do minimoog usando os blocos que foram definidos.
+
+\subsection{Os blocos utilizados}
+Um construtor da classe Moog cria 2 osciladores, \emph{oscil1} e \emph{oscil2}, com números para controlar frequência e amplitude, um gerador de ruído \emph{noise} 
+e um número pra controlar a amplitude, um filtro \emph{filter} e números pra controlar o contorno do filtro, frequência e o fator de qualidade, 2 ADSR, um para controle da 
+envoltória de amplitude \emph{env} e outro pra controle da envoltória de frequência \emph{env\_freq}, 2 somadores \emph{adder} e \emph{adder\_aux}, 2 multiplicadores
+\emph{mult\_aux} e \emph{mult\_aux2} e um número \emph{master\_amp} pra controlar a amplitude geral.
+
+\subsection{Conexão dos blocos}
+Com todos esses blocos criados, a classe Moog conecta a fim de formar a arquitetura do minimoog. Ao criar um objeto da classe Moog, ele inicializa 
+o cada um dos blocos com valores padão e conecta os blocos.
+
+
+
+Para os osciladores e o gerador de ruído, o construtor da classe Moog seleciona os números que controlam a frequência e amplitude como as entradas dos
+2 osciladores \emph{oscil1} e \emph{oscil2}, e seleciona \emph{oscil2} como escravo do primeiro. Seleciona o número que controla a amplitude do gerador de 
+ruído \emph{noise}. Seleciona \emph{oscil1}, \emph{oscil2} e \emph{noise} como as 3 entradas do somador \emph{adder}. 
+
+
+
+Para o filtro, a classe Moog usa o multiplicador \emph{mult\_aux} para multiplicar o número que controla o contorno do filtro, com a envoltória de 
+frequência \emph{env\_freq} e a frequência de corte, a saída desse multiplicador é somada a frequência de corte com o somador \emph{adder\_aux},
+para o filtro \emph{filter} é selecionado como sinal de entrada a saída do somador dos osciladores e ruído \emph{adder}, selecionado como frequência 
+de corte o segundo somador \emph{adder\_aux} e como fator de qualidade o número que controla o fator de qualidade. Por último, é usado o multiplicador 
+\emph{mult\_aux2} para multiplicar a saída de \emph{filter} com o ADSR \emph{env} e com o controlador de amplitude geral \emph{master\_amp}. 
+
+  
+\subsection{Métodos}
+A classe moog também tem métodos para que se possa controlar o valor desses blocos e fazer o controle dos parâmetros do minimoog, que são
+ para os osciladores a frequência, amplitude, tipo de forma de onda, a oitava, setar ligado ou desligado, isso para ambos osciladores.
+Para o gerador de ruído, os parâmetros são a amplitude, setar ligado ou desligado e o tipo de ruído (branco ou rosa).
+
+
+Para o filtro o controle é na frequência de corte, o contorno do filtro, o fator de qualidade, setar ligado ou desligado, além do controle
+ de ataque, decaimento, sustentação e relaxamento da envoltória de frequência do filtro.
+Há ainda o controle para a envoltória de amplitude usada na saída do filtro, que controla o tempo de ataque, decaimento, sustentação e 
+relaxamento e o nível de sustentação da envoltória de amplitude.
+
+
+Então com o uso dos métodos da classe Moog é possivel controlar todos os parâmetros do minimoog.
+
+
+
+
 
 
 

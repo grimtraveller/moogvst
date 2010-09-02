@@ -85,11 +85,11 @@ int main(void) {
 	filter.setQualityInput(&quality);
 	adsr.resetBlock();
 	filter.setInputSignal(&noise);
-	quality.setNumber(1.0);
+	quality.setNumber(3.56);
 
 	for (int i = 0; i < 44100 * 2; i++) {
-		samples[i] = filter.getNextValue() * 30000;
-		quality.setNumber(i/22100+0.5);
+		samples[i] = filter.getNextValue() * 10000;
+		//if(i==30000)noise.setON(false);
 	}
 	write_wave("filter_test1.wav", 44100, samples, 2.0);
 
@@ -97,7 +97,7 @@ int main(void) {
 	quality.setNumber(3.0);
 	oscil.setWavetable(SAW);
 	oscil.setAmplitudeInput(&adsr);
-	filter.setInputSignal(&oscil);
+	filter.setInputSignal(&noise);
 	for (int i = 0; i < 44100 * 2; i++) {
 		samples[i] = filter.getNextValue() * 30000;
 
