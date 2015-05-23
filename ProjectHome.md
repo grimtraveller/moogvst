@@ -1,0 +1,1 @@
+This project objective is to develop a VSTI plugin based on the classic Moog
